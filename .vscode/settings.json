@@ -1,0 +1,49 @@
+{
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"tailwindCSS.experimental.configFile": null,
+	"tailwindCSS.includeLanguages": {
+		"typescript": "javascript",
+		"typescriptreact": "javascript"
+	},
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"emmet.includeLanguages": {
+		"javascript": "javascriptreact",
+		"typescript": "typescriptreact"
+	},
+	"github.copilot.chat.codeGeneration.instructions": [
+		{
+			"text": "Always use TypeScript strict mode. Use interface for domain types, type for unions. No any — use unknown."
+		},
+		{
+			"text": "All work-time calculation logic must go in app/lib/calculations.ts only."
+		},
+		{
+			"text": "Use React Router v7 loader/action for all data fetching and mutations. Never fetch in components with useEffect."
+		},
+		{
+			"text": "UI text, labels, error messages must be in Vietnamese. Code (variables, functions, types) must be in English."
+		},
+		{
+			"text": "Use Tailwind CSS v4 classes only. No inline styles. Use cn() helper (clsx + tailwind-merge) for conditional classNames."
+		},
+		{
+			"text": "Date stored as 'YYYY-MM-DD' string, time as 'HH:mm' string. Default timezone: Asia/Ho_Chi_Minh."
+		},
+		{
+			"text": "Every route file must export a meta() function."
+		}
+	],
+	"github.copilot.chat.testGeneration.instructions": [
+		{
+			"text": "Test all functions in app/lib/calculations.ts with edge cases: missing check-in/out, overnight shifts, lunch break overlap, early/late boundaries."
+		}
+	]
+}
