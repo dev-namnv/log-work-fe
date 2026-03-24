@@ -13,6 +13,7 @@
 5. [Notice](#5-notice)
 6. [Organization](#6-organization)
 7. [Work Log](#7-work-log)
+   - 7.1 [Work Log Share](#71-work-log-share)
 8. [Telegram](#8-telegram)
 
 ---
@@ -62,13 +63,13 @@ Test endpoint to verify cookie-based auth is working.
 
 ```json
 {
-  "message": "Auth works with cookie!",
-  "account": {
-    "id": "665f...",
-    "email": "user@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  }
+	"message": "Auth works with cookie!",
+	"account": {
+		"id": "665f...",
+		"email": "user@example.com",
+		"firstName": "John",
+		"lastName": "Doe"
+	}
 }
 ```
 
@@ -84,14 +85,14 @@ Test endpoint that works with or without a logged-in session.
 
 ```json
 {
-  "message": "AuthOptional works!",
-  "isAuthenticated": true,
-  "account": {
-    "id": "665f...",
-    "email": "user@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  }
+	"message": "AuthOptional works!",
+	"isAuthenticated": true,
+	"account": {
+		"id": "665f...",
+		"email": "user@example.com",
+		"firstName": "John",
+		"lastName": "Doe"
+	}
 }
 ```
 
@@ -113,11 +114,11 @@ Register a new account. Sets the `accessToken` cookie on success.
 
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "Secret123",
-  "inviteCode": "abc123"
+	"firstName": "John",
+	"lastName": "Doe",
+	"email": "john.doe@example.com",
+	"password": "Secret123",
+	"inviteCode": "abc123"
 }
 ```
 
@@ -148,8 +149,8 @@ Login with email and password. Sets the `accessToken` cookie on success. Admin a
 
 ```json
 {
-  "email": "john.doe@example.com",
-  "password": "Secret123"
+	"email": "john.doe@example.com",
+	"password": "Secret123"
 }
 ```
 
@@ -180,21 +181,21 @@ Get the currently authenticated user's profile.
 
 ```json
 {
-  "_id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "email": "john.doe@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": null,
-  "avatar": null,
-  "role": "USER",
-  "isVerified": false,
-  "metadata": {
-    "sendMail": true,
-    "telegramChatId": null,
-    "sendTelegram": false
-  },
-  "createdAt": "2026-01-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"email": "john.doe@example.com",
+	"firstName": "John",
+	"lastName": "Doe",
+	"phone": null,
+	"avatar": null,
+	"role": "USER",
+	"isVerified": false,
+	"metadata": {
+		"sendMail": true,
+		"telegramChatId": null,
+		"sendTelegram": false
+	},
+	"createdAt": "2026-01-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -210,9 +211,9 @@ Change the current user's password.
 
 ```json
 {
-  "password": "OldPassword123",
-  "newPassword": "NewPassword456",
-  "newPasswordConfirm": "NewPassword456"
+	"password": "OldPassword123",
+	"newPassword": "NewPassword456",
+	"newPasswordConfirm": "NewPassword456"
 }
 ```
 
@@ -240,10 +241,10 @@ Update the authenticated user's profile.
 
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "languages": ["en", "vi"]
+	"firstName": "John",
+	"lastName": "Doe",
+	"email": "john.doe@example.com",
+	"languages": ["en", "vi"]
 }
 ```
 
@@ -268,8 +269,8 @@ Update user metadata settings (notification preferences, etc.).
 
 ```json
 {
-  "sendMail": true,
-  "sendTelegram": false
+	"sendMail": true,
+	"sendTelegram": false
 }
 ```
 
@@ -287,7 +288,7 @@ Set Telegram Chat ID to receive real-time notifications. Send `null` or empty st
 
 ```json
 {
-  "telegramChatId": "123456789"
+	"telegramChatId": "123456789"
 }
 ```
 
@@ -309,7 +310,7 @@ Send a password reset email.
 
 ```json
 {
-  "email": "john.doe@example.com"
+	"email": "john.doe@example.com"
 }
 ```
 
@@ -331,8 +332,8 @@ Reset the password using the key received in the reset email.
 
 ```json
 {
-  "key": "reset-token-from-email",
-  "password": "NewPassword456"
+	"key": "reset-token-from-email",
+	"password": "NewPassword456"
 }
 ```
 
@@ -407,8 +408,8 @@ Verify OTP code for ADMIN two-factor login. Sets the `accessToken` cookie on suc
 
 ```json
 {
-  "email": "admin@example.com",
-  "otp": "123456"
+	"email": "admin@example.com",
+	"otp": "123456"
 }
 ```
 
@@ -437,7 +438,7 @@ Resend OTP for ADMIN login.
 
 ```json
 {
-  "email": "admin@example.com"
+	"email": "admin@example.com"
 }
 ```
 
@@ -479,9 +480,9 @@ Search and paginate all accounts.
 
 ```json
 {
-  "keyword": "john",
-  "page": 1,
-  "limit": 20
+	"keyword": "john",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -557,17 +558,17 @@ Get all unread notices for the current user.
 
 ```json
 [
-  {
-    "_id": "665f...",
-    "account": "665f...",
-    "type": "Work Log",
-    "message": "<p>Your work log for <b>March 2026</b> has been submitted.</p>",
-    "viewed": false,
-    "variant": "success",
-    "link": null,
-    "createdAt": "2026-03-23T09:00:00.000Z",
-    "updatedAt": "2026-03-23T09:00:00.000Z"
-  }
+	{
+		"_id": "665f...",
+		"account": "665f...",
+		"type": "Work Log",
+		"message": "<p>Your work log for <b>March 2026</b> has been submitted.</p>",
+		"viewed": false,
+		"variant": "success",
+		"link": null,
+		"createdAt": "2026-03-23T09:00:00.000Z",
+		"updatedAt": "2026-03-23T09:00:00.000Z"
+	}
 ]
 ```
 
@@ -617,10 +618,10 @@ Broadcast a notice to every user in the system.
 
 ```json
 {
-  "type": "Application",
-  "variant": "success",
-  "message": "<p>System maintenance scheduled for Sunday.</p>",
-  "link": "https://example.com"
+	"type": "Application",
+	"variant": "success",
+	"message": "<p>System maintenance scheduled for Sunday.</p>",
+	"link": "https://example.com"
 }
 ```
 
@@ -649,11 +650,11 @@ Send a notice to a specific user.
 
 ```json
 {
-  "id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "type": "Application",
-  "variant": "warning",
-  "message": "<p>Your account will be suspended.</p>",
-  "link": null
+	"id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"type": "Application",
+	"variant": "warning",
+	"message": "<p>Your account will be suspended.</p>",
+	"link": null
 }
 ```
 
@@ -679,11 +680,11 @@ Send a notice to multiple specific users.
 
 ```json
 {
-  "ids": ["665f...", "666a..."],
-  "type": "Application",
-  "variant": "default",
-  "message": "<p>Reminder: submit your work logs.</p>",
-  "link": null
+	"ids": ["665f...", "666a..."],
+	"type": "Application",
+	"variant": "default",
+	"message": "<p>Reminder: submit your work logs.</p>",
+	"link": null
 }
 ```
 
@@ -719,13 +720,13 @@ Create a new organization. The creator becomes the `owner`.
 
 ```json
 {
-  "name": "Acme Corp",
-  "description": "Main office",
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  }
+	"name": "Acme Corp",
+	"description": "Main office",
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -747,20 +748,20 @@ Create a new organization. The creator becomes the `owner`.
 
 ```json
 {
-  "_id": "665f...",
-  "name": "Acme Corp",
-  "description": "Main office",
-  "avatar": null,
-  "owner": "665f1a2b3c4d5e6f7a8b9c0d",
-  "members": [],
-  "isActive": true,
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  },
-  "createdAt": "2026-03-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f...",
+	"name": "Acme Corp",
+	"description": "Main office",
+	"avatar": null,
+	"owner": "665f1a2b3c4d5e6f7a8b9c0d",
+	"members": [],
+	"isActive": true,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"createdAt": "2026-03-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -776,9 +777,9 @@ Search organizations where the current user is owner or member.
 
 ```json
 {
-  "keyword": "acme",
-  "page": 1,
-  "limit": 20
+	"keyword": "acme",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -834,14 +835,14 @@ Update organization info. **Owner only.**
 
 ```json
 {
-  "name": "Acme Corp Updated",
-  "description": "New description",
-  "isActive": true,
-  "workSchedule": {
-    "workStartTime": "09:00",
-    "workEndTime": "18:00",
-    "lunchBreakMinutes": 60
-  }
+	"name": "Acme Corp Updated",
+	"description": "New description",
+	"isActive": true,
+	"workSchedule": {
+		"workStartTime": "09:00",
+		"workEndTime": "18:00",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -885,7 +886,7 @@ Add a member to the organization. **Owner only.**
 
 ```json
 {
-  "memberId": "665f1a2b3c4d5e6f7a8b9c0d"
+	"memberId": "665f1a2b3c4d5e6f7a8b9c0d"
 }
 ```
 
@@ -913,7 +914,7 @@ Remove a member from the organization. **Owner only.**
 
 ```json
 {
-  "memberId": "665f1a2b3c4d5e6f7a8b9c0d"
+	"memberId": "665f1a2b3c4d5e6f7a8b9c0d"
 }
 ```
 
@@ -945,11 +946,11 @@ Example: `08:00 → 17:30` minus `60 min` = **8.5 h/day**
 
 ```json
 {
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  }
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -985,10 +986,10 @@ Create a work log entry for the current day.
 
 ```json
 {
-  "organizationId": "665f...",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "note": "Normal work day"
+	"organizationId": "665f...",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"note": "Normal work day"
 }
 ```
 
@@ -1003,16 +1004,16 @@ Create a work log entry for the current day.
 
 ```json
 {
-  "_id": "666a...",
-  "account": "665f...",
-  "organization": "665f...",
-  "date": "2026-03-23T00:00:00.000Z",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "hours": 9.5,
-  "note": "Normal work day",
-  "createdAt": "2026-03-23T17:35:00.000Z",
-  "updatedAt": "2026-03-23T17:35:00.000Z"
+	"_id": "666a...",
+	"account": "665f...",
+	"organization": "665f...",
+	"date": "2026-03-23T00:00:00.000Z",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"hours": 9.5,
+	"note": "Normal work day",
+	"createdAt": "2026-03-23T17:35:00.000Z",
+	"updatedAt": "2026-03-23T17:35:00.000Z"
 }
 ```
 
@@ -1036,9 +1037,9 @@ Search/paginate work log entries for the current user.
 
 ```json
 {
-  "keyword": "",
-  "page": 1,
-  "limit": 20
+	"keyword": "",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -1082,35 +1083,35 @@ Get the monthly work summary for the current user. Optionally filter by organiza
 
 ```json
 {
-  "month": 3,
-  "year": 2026,
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  },
-  "standardHoursPerDay": 8.5,
-  "standardWorkDays": 21,
-  "totalStandardHours": 178.5,
-  "totalHours": 165.0,
-  "loggedDays": 20,
-  "overtimeHours": 0,
-  "missingHours": 13.5,
-  "attendanceRate": 92.44,
-  "logs": [
-    {
-      "_id": "666a...",
-      "account": "665f...",
-      "organization": "665f...",
-      "date": "2026-03-03T00:00:00.000Z",
-      "checkIn": "2026-03-03T08:00:00.000Z",
-      "checkOut": "2026-03-03T17:30:00.000Z",
-      "hours": 9.5,
-      "note": null,
-      "createdAt": "2026-03-03T17:35:00.000Z",
-      "updatedAt": "2026-03-03T17:35:00.000Z"
-    }
-  ]
+	"month": 3,
+	"year": 2026,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"standardHoursPerDay": 8.5,
+	"standardWorkDays": 21,
+	"totalStandardHours": 178.5,
+	"totalHours": 165.0,
+	"loggedDays": 20,
+	"overtimeHours": 0,
+	"missingHours": 13.5,
+	"attendanceRate": 92.44,
+	"logs": [
+		{
+			"_id": "666a...",
+			"account": "665f...",
+			"organization": "665f...",
+			"date": "2026-03-03T00:00:00.000Z",
+			"checkIn": "2026-03-03T08:00:00.000Z",
+			"checkOut": "2026-03-03T17:30:00.000Z",
+			"hours": 9.5,
+			"note": null,
+			"createdAt": "2026-03-03T17:35:00.000Z",
+			"updatedAt": "2026-03-03T17:35:00.000Z"
+		}
+	]
 }
 ```
 
@@ -1141,9 +1142,9 @@ Get per-member work log analytics for a given organization, month, and year.
 
 ```json
 {
-  "organizationId": "665f...",
-  "month": 3,
-  "year": 2026
+	"organizationId": "665f...",
+	"month": 3,
+	"year": 2026
 }
 ```
 
@@ -1225,9 +1226,9 @@ Update a work log entry. Hours are automatically recomputed from the updated `ch
 
 ```json
 {
-  "checkIn": "2026-03-23T08:30:00.000Z",
-  "checkOut": "2026-03-23T18:00:00.000Z",
-  "note": "Started late"
+	"checkIn": "2026-03-23T08:30:00.000Z",
+	"checkOut": "2026-03-23T18:00:00.000Z",
+	"note": "Started late"
 }
 ```
 
@@ -1258,6 +1259,208 @@ Delete a work log entry.
 ```json
 { "message": "Work log deleted" }
 ```
+
+---
+
+## 7.1 Work Log Share
+
+Cho phép người dùng tạo link chia sẻ báo cáo công việc theo tháng để gửi cho HR hoặc kế toán. Link không yêu cầu đăng nhập khi xem.
+
+---
+
+### `POST /work-log/share`
+
+Tạo một link chia sẻ báo cáo công việc theo tháng.
+
+> Requires: **login**
+
+**Request Body**
+
+```json
+{
+	"month": 3,
+	"year": 2026,
+	"organizationId": "665f...",
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z"
+}
+```
+
+| Field            | Type     | Required | Notes                                                                           |
+| ---------------- | -------- | -------- | ------------------------------------------------------------------------------- |
+| `month`          | `number` | ✅       | 1–12                                                                            |
+| `year`           | `number` | ✅       | e.g. `2026`                                                                     |
+| `organizationId` | `string` | ❌       | Giới hạn báo cáo trong một cơ quan cụ thể. Bỏ trống để hiển thị tất cả cơ quan. |
+| `label`          | `string` | ❌       | Nhãn hiển thị, tối đa 100 ký tự. Tự động tạo nếu bỏ trống.                      |
+| `expiresAt`      | `string` | ❌       | ISO 8601 — ngày hết hạn. Bỏ trống để link không bao giờ hết hạn.                |
+
+**Response** — `201 Created`
+
+```json
+{
+	"_id": "667c...",
+	"token": "a3f8b2e1c9d047...",
+	"account": "665f...",
+	"organization": "665f...",
+	"month": 3,
+	"year": 2026,
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z",
+	"isActive": true,
+	"createdAt": "2026-03-24T08:00:00.000Z",
+	"updatedAt": "2026-03-24T08:00:00.000Z"
+}
+```
+
+> URL chia sẻ được tạo bởi frontend theo dạng: `https://<frontend-host>/share/<token>`
+
+---
+
+### `GET /work-log/share`
+
+Lấy danh sách tất cả link chia sẻ của người dùng hiện tại.
+
+> Requires: **login**
+
+**Response** — `200 OK`
+
+```json
+[
+	{
+		"_id": "667c...",
+		"token": "a3f8b2e1c9d047...",
+		"account": "665f...",
+		"organization": { "_id": "665f...", "name": "Acme Corp" },
+		"month": 3,
+		"year": 2026,
+		"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+		"expiresAt": "2026-04-30T23:59:59.000Z",
+		"isActive": true,
+		"createdAt": "2026-03-24T08:00:00.000Z",
+		"updatedAt": "2026-03-24T08:00:00.000Z"
+	}
+]
+```
+
+---
+
+### `DELETE /work-log/share/:id/delete`
+
+Thu hồi (xoá) một link chia sẻ.
+
+> Requires: **login** (phải là chủ sở hữu của link)
+
+**URL Params**
+
+| Param | Type     | Notes                           |
+| ----- | -------- | ------------------------------- |
+| `id`  | `string` | MongoDB ObjectId của share link |
+
+**Response** — `200 OK`
+
+```json
+{ "message": "Share link revoked" }
+```
+
+---
+
+### `GET /work-log/share/:token/view`
+
+Xem báo cáo công việc qua link chia sẻ. **Không yêu cầu đăng nhập** — dùng để gửi cho HR hoặc kế toán.
+
+> No auth required.
+
+**URL Params**
+
+| Param   | Type     | Notes                            |
+| ------- | -------- | -------------------------------- |
+| `token` | `string` | Token 48 ký tự hex từ share link |
+
+**Response** — `200 OK`
+
+```json
+{
+	"share": {
+		"_id": "667c...",
+		"token": "a3f8b2e1c9d047...",
+		"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+		"month": 3,
+		"year": 2026,
+		"expiresAt": "2026-04-30T23:59:59.000Z",
+		"createdAt": "2026-03-24T08:00:00.000Z"
+	},
+	"account": {
+		"_id": "665f...",
+		"firstName": "Nguyễn Văn",
+		"lastName": "A",
+		"email": "nguyenvana@example.com",
+		"avatar": null
+	},
+	"organization": {
+		"_id": "665f...",
+		"name": "Acme Corp",
+		"workSchedule": {
+			"workStartTime": "08:00",
+			"workEndTime": "17:30",
+			"lunchBreakMinutes": 60
+		}
+	},
+	"month": 3,
+	"year": 2026,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"standardHoursPerDay": 8.5,
+	"standardWorkDays": 21,
+	"totalStandardHours": 178.5,
+	"totalHours": 165.0,
+	"loggedDays": 20,
+	"overtimeHours": 0,
+	"missingHours": 13.5,
+	"attendanceRate": 92.44,
+	"logs": [
+		{
+			"_id": "666a...",
+			"account": "665f...",
+			"organization": "665f...",
+			"date": "2026-03-03T00:00:00.000Z",
+			"checkIn": "2026-03-03T08:00:00.000Z",
+			"checkOut": "2026-03-03T17:30:00.000Z",
+			"hours": 8.5,
+			"note": null,
+			"createdAt": "2026-03-03T17:35:00.000Z",
+			"updatedAt": "2026-03-03T17:35:00.000Z"
+		}
+	]
+}
+```
+
+**Response fields explained**
+
+| Field                 | Type           | Description                                                                 |
+| --------------------- | -------------- | --------------------------------------------------------------------------- |
+| `share`               | `object`       | Metadata của share link (không chứa thông tin nhạy cảm)                     |
+| `account`             | `object`       | Thông tin người lao động (firstName, lastName, email, avatar)               |
+| `organization`        | `object\|null` | Cơ quan được lọc, `null` nếu link hiển thị tất cả cơ quan                   |
+| `workSchedule`        | `object`       | Lịch làm việc áp dụng để tính toán số giờ chuẩn                             |
+| `standardHoursPerDay` | `number`       | Giờ làm chuẩn mỗi ngày                                                      |
+| `standardWorkDays`    | `number`       | Số ngày làm việc chuẩn trong tháng (Thứ 2–Thứ 6)                            |
+| `totalStandardHours`  | `number`       | Tổng giờ làm chuẩn = `standardHoursPerDay × standardWorkDays`               |
+| `totalHours`          | `number`       | Tổng số giờ đã làm thực tế                                                  |
+| `loggedDays`          | `number`       | Số ngày đã có log                                                           |
+| `overtimeHours`       | `number`       | Giờ OT = `max(0, totalHours − totalStandardHours)`                          |
+| `missingHours`        | `number`       | Giờ thiếu = `max(0, totalStandardHours − totalHours)`                       |
+| `attendanceRate`      | `number`       | Tỷ lệ chuyên cần (%) = `(totalHours / totalStandardHours) × 100` (2 chữ số) |
+| `logs`                | `WorkLog[]`    | Chi tiết từng ngày làm việc                                                 |
+
+**Errors**
+
+| Status | Reason                             |
+| ------ | ---------------------------------- |
+| `404`  | Token không tồn tại                |
+| `410`  | Link đã bị thu hồi hoặc đã hết hạn |
 
 ---
 
@@ -1293,10 +1496,10 @@ Get basic information about the configured Telegram bot.
 
 ```json
 {
-  "id": 123456789,
-  "is_bot": true,
-  "first_name": "LogWork Bot",
-  "username": "logwork_bot"
+	"id": 123456789,
+	"is_bot": true,
+	"first_name": "LogWork Bot",
+	"username": "logwork_bot"
 }
 ```
 
@@ -1312,9 +1515,9 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "url": "https://your-domain.com/telegram/webhook",
-  "has_custom_certificate": false,
-  "pending_update_count": 0
+	"url": "https://your-domain.com/telegram/webhook",
+	"has_custom_certificate": false,
+	"pending_update_count": 0
 }
 ```
 
@@ -1326,21 +1529,21 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "email": "user@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": null,
-  "avatar": null,
-  "role": "USER",
-  "isVerified": false,
-  "metadata": {
-    "sendMail": true,
-    "telegramChatId": null,
-    "sendTelegram": false
-  },
-  "createdAt": "2026-01-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"email": "user@example.com",
+	"firstName": "John",
+	"lastName": "Doe",
+	"phone": null,
+	"avatar": null,
+	"role": "USER",
+	"isVerified": false,
+	"metadata": {
+		"sendMail": true,
+		"telegramChatId": null,
+		"sendTelegram": false
+	},
+	"createdAt": "2026-01-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -1371,32 +1574,52 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "666a...",
-  "account": "665f...",
-  "organization": "665f...",
-  "date": "2026-03-23T00:00:00.000Z",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "hours": 9.5,
-  "note": null,
-  "createdAt": "2026-03-23T17:35:00.000Z",
-  "updatedAt": "2026-03-23T17:35:00.000Z"
+	"_id": "666a...",
+	"account": "665f...",
+	"organization": "665f...",
+	"date": "2026-03-23T00:00:00.000Z",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"hours": 9.5,
+	"note": null,
+	"createdAt": "2026-03-23T17:35:00.000Z",
+	"updatedAt": "2026-03-23T17:35:00.000Z"
 }
 ```
+
+### WorkLogShare Object
+
+```json
+{
+	"_id": "667c...",
+	"token": "a3f8b2e1c9d047ab12fe3901cd5678ef90ab1234cd5678ef",
+	"account": "665f...",
+	"organization": { "_id": "665f...", "name": "Acme Corp" },
+	"month": 3,
+	"year": 2026,
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z",
+	"isActive": true,
+	"createdAt": "2026-03-24T08:00:00.000Z",
+	"updatedAt": "2026-03-24T08:00:00.000Z"
+}
+```
+
+---
 
 ### Notice Object
 
 ```json
 {
-  "_id": "667b...",
-  "account": "665f...",
-  "type": "Work Log",
-  "message": "<p>Your work log has been submitted.</p>",
-  "viewed": false,
-  "variant": "success",
-  "link": null,
-  "createdAt": "2026-03-23T09:00:00.000Z",
-  "updatedAt": "2026-03-23T09:00:00.000Z"
+	"_id": "667b...",
+	"account": "665f...",
+	"type": "Work Log",
+	"message": "<p>Your work log has been submitted.</p>",
+	"viewed": false,
+	"variant": "success",
+	"link": null,
+	"createdAt": "2026-03-23T09:00:00.000Z",
+	"updatedAt": "2026-03-23T09:00:00.000Z"
 }
 ```
 
@@ -1406,11 +1629,11 @@ All `/search` endpoints return this shape:
 
 ```json
 {
-  "data": [],
-  "total": 100,
-  "page": 1,
-  "limit": 20,
-  "totalPages": 5
+	"data": [],
+	"total": 100,
+	"page": 1,
+	"limit": 20,
+	"totalPages": 5
 }
 ```
 
@@ -1418,9 +1641,9 @@ All `/search` endpoints return this shape:
 
 ```json
 {
-  "statusCode": 400,
-  "message": "checkOut must be after checkIn",
-  "error": "Bad Request"
+	"statusCode": 400,
+	"message": "checkOut must be after checkIn",
+	"error": "Bad Request"
 }
 ```
 

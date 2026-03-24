@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type {
+	CreateShareDto,
 	CreateWorkLogDto,
 	UpdateWorkLogDto,
 } from '~/apis/work-log.service';
@@ -47,6 +48,26 @@ export function useDeleteWorkLogMutation() {
 				queryKey: WORK_LOG_KEYS.monthlyReports(),
 			});
 			navigate('/work-logs');
+		},
+	});
+}
+
+export function useCreateShareMutation() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (dto: CreateShareDto) => WorkLogService.createShare(dto),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.shares() });
+		},
+	});
+}
+
+export function useRevokeShareMutation() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => WorkLogService.revokeShare(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.shares() });
 		},
 	});
 }

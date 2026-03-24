@@ -5,6 +5,8 @@ import type {
 	OrganizationByReport,
 	PaginatedResponse,
 	WorkLog,
+	WorkLogShare,
+	WorkLogShareView,
 } from '~/types/api';
 
 // ---------------------------------------------------------------------------
@@ -40,6 +42,14 @@ export interface OrgReportDto {
 	organizationId: string;
 	month: number; // 1–12
 	year: number;
+}
+
+export interface CreateShareDto {
+	month: number;
+	year: number;
+	organizationId?: string;
+	label?: string;
+	expiresAt?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -107,5 +117,37 @@ export class WorkLogService {
 	 */
 	static deleteById(id: string): Promise<MessageResponse> {
 		return http.delete<MessageResponse>(`/work-log/${id}/delete`);
+	}
+
+	// -----------------------------------------------------------------------
+	// Share
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Tạo link chia sẻ báo cáo tháng.
+	 */
+	static createShare(dto: CreateShareDto): Promise<WorkLogShare> {
+		return http.post<WorkLogShare>('/work-log/share', { json: dto });
+	}
+
+	/**
+	 * Lấy danh sách tất cả link chia sẻ của người dùng hiện tại.
+	 */
+	static getShares(): Promise<WorkLogShare[]> {
+		return http.get<WorkLogShare[]>('/work-log/share');
+	}
+
+	/**
+	 * Thu hồi link chia sẻ theo id.
+	 */
+	static revokeShare(id: string): Promise<MessageResponse> {
+		return http.delete<MessageResponse>(`/work-log/share/${id}/delete`);
+	}
+
+	/**
+	 * Xem báo cáo qua link chia sẻ — không yêu cầu đăng nhập.
+	 */
+	static viewShare(token: string): Promise<WorkLogShareView> {
+		return http.get<WorkLogShareView>(`/work-log/share/${token}/view`);
 	}
 }

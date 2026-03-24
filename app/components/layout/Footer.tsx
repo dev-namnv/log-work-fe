@@ -1,4 +1,4 @@
-import { Separator } from '~/components/ui/separator';
+import { NavLink } from 'react-router';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -14,9 +14,10 @@ export default function Footer() {
 					</p>
 
 					<div className="flex items-center gap-2 text-xs text-muted-foreground">
-						<span>v1.0.0</span>
-						<Separator orientation="vertical" className="h-3" />
-						<span>React Router v7</span>
+						<span>
+							Developed by{' '}
+							<NavLink to="https://dev-namnv.github.io">Liam Ng</NavLink>
+						</span>
 					</div>
 				</div>
 			</div>

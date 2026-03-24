@@ -6,7 +6,7 @@
 
 ### Tech stack
 
-- **Framework**: React Router v7 (SSR enabled) + React 19
+- **Framework**: React Router v7 (SSR disabled) + React 19
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v4
 - **Build**: Vite

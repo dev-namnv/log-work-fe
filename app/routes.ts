@@ -55,4 +55,7 @@ export default [
 			route('verify-email/:token', 'routes/auth/$token.verify-email.auth.tsx'),
 		]),
 	]),
+
+	// Public share view — no layout, no auth required
+	route('share/:token', 'routes/share/$token.share.tsx'),
 ] satisfies RouteConfig;

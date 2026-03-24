@@ -18,6 +18,9 @@ export const WORK_LOG_KEYS = {
 	orgReports: () => [...WORK_LOG_KEYS.all, 'org-report'] as const,
 	orgReport: (dto: OrgReportDto) =>
 		[...WORK_LOG_KEYS.orgReports(), dto] as const,
+	shares: () => [...WORK_LOG_KEYS.all, 'shares'] as const,
+	shareView: (token: string) =>
+		[...WORK_LOG_KEYS.all, 'share-view', token] as const,
 };
 
 export function useWorkLogsQuery(dto: SearchWorkLogDto = {}) {
@@ -48,5 +51,22 @@ export function useOrgReportQuery(dto: OrgReportDto) {
 		queryKey: WORK_LOG_KEYS.orgReport(dto),
 		queryFn: () => WorkLogService.getByOrganization(dto),
 		enabled: !!dto.organizationId && !!dto.month && !!dto.year,
+	});
+}
+
+export function useShareLinksQuery() {
+	return useQuery({
+		queryKey: WORK_LOG_KEYS.shares(),
+		queryFn: () => WorkLogService.getShares(),
+	});
+}
+
+export function useShareViewQuery(token: string) {
+	return useQuery({
+		queryKey: WORK_LOG_KEYS.shareView(token),
+		queryFn: () => WorkLogService.viewShare(token),
+		enabled: !!token,
+		staleTime: 5 * 60 * 1000, // cache 5 min làm tải nhanh hơn khi share
+		retry: false,
 	});
 }

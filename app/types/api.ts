@@ -103,6 +103,8 @@ export interface MemberWorkLog {
 	logs: WorkLog[];
 	totalHours: number;
 	loggedDays: number;
+	overtimeHours: number;
+	missingHours: number;
 	attendanceRate: number;
 }
 
@@ -113,6 +115,56 @@ export interface OrganizationByReport {
 	standardWorkDays: number;
 	totalStandardHours: number;
 	members: MemberWorkLog[];
+}
+
+// ---------------------------------------------------------------------------
+// WorkLogShare
+// ---------------------------------------------------------------------------
+
+export interface WorkLogShare {
+	_id: string;
+	token: string;
+	account: Account | string;
+	organization: { _id: string; name: string } | null;
+	month: number;
+	year: number;
+	label: string;
+	expiresAt: string | null;
+	isActive: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface WorkLogShareMeta {
+	_id: string;
+	token: string;
+	label: string;
+	month: number;
+	year: number;
+	expiresAt: string | null;
+	createdAt: string;
+}
+
+export interface WorkLogShareView {
+	share: WorkLogShareMeta;
+	account: Pick<Account, '_id' | 'firstName' | 'lastName' | 'email'>;
+	organization: {
+		_id: string;
+		name: string;
+		workSchedule: WorkSchedule;
+	} | null;
+	month: number;
+	year: number;
+	workSchedule: WorkSchedule;
+	standardHoursPerDay: number;
+	standardWorkDays: number;
+	totalStandardHours: number;
+	totalHours: number;
+	loggedDays: number;
+	overtimeHours: number;
+	missingHours: number;
+	attendanceRate: number;
+	logs: WorkLog[];
 }
 
 // ---------------------------------------------------------------------------
