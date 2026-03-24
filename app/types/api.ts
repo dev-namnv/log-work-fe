@@ -76,7 +76,7 @@ export interface WorkLog {
 	organization: Organization | string;
 	date: string; // "YYYY-MM-DD"
 	checkIn: string; // ISO 8601
-	checkOut: string; // ISO 8601
+	checkOut: string | null; // ISO 8601, null nếu chưa check-out
 	hours: number;
 	note: string;
 	createdAt: string;

@@ -11,6 +11,37 @@ export default [
 	layout('components/layout/MainLayout.tsx', [
 		index('routes/home.tsx'),
 		route('profile', 'routes/profile/index.profile.tsx'),
+		route('check-in', 'routes/check-in/index.check-in.tsx'),
+
+		// Organizations
+		...prefix('organizations', [
+			index('routes/organizations/index.organizations.tsx'),
+			route('new', 'routes/organizations/new.organizations.tsx'),
+			route(':id', 'routes/organizations/$id.organizations.tsx'),
+			route(
+				':id/settings',
+				'routes/organizations/$id.settings.organizations.tsx',
+			),
+		]),
+
+		// Work Logs
+		...prefix('work-logs', [
+			index('routes/work-logs/index.work-logs.tsx'),
+			route('new', 'routes/work-logs/new.work-logs.tsx'),
+			route(':id', 'routes/work-logs/$id.work-logs.tsx'),
+		]),
+
+		// Reports
+		...prefix('reports', [
+			route('attendance', 'routes/reports/attendance.reports.tsx'),
+			route('payroll', 'routes/reports/payroll.reports.tsx'),
+		]),
+
+		// Employees
+		...prefix('employees', [
+			index('routes/employees/index.employees.tsx'),
+			route(':id', 'routes/employees/$id.employees.tsx'),
+		]),
 	]),
 
 	// Auth routes — wrapped in AuthLayout (no header/footer)

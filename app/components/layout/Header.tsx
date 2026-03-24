@@ -6,14 +6,9 @@ import {
 	LayoutDashboard,
 	LogIn,
 	LogOut,
-	Menu,
-	User,
 	Users,
-	X,
 } from 'lucide-react';
-import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
-import { Button } from '~/components/ui/button';
 import { useAuth } from '~/contexts/auth-context';
 import { useLogoutMutation } from '~/hooks/use-auth-mutations';
 import { cn } from '~/lib/utils';
@@ -28,9 +23,7 @@ const navItems = [
 ];
 
 export default function Header() {
-	const [mobileOpen, setMobileOpen] = useState(false);
 	const { user, loading } = useAuth();
-	console.log('User in header:', user); // Debugging line
 
 	const userInitials = user
 		? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
@@ -109,80 +102,25 @@ export default function Header() {
 						))}
 				</div>
 
-				{/* Mobile toggle */}
-				<div className="ml-auto md:hidden">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => setMobileOpen((v) => !v)}
-						aria-label="Mở menu">
-						{mobileOpen ? (
-							<X className="h-5 w-5" />
+				{/* Mobile — user avatar */}
+				<div className="ml-auto md:hidden flex items-center">
+					{!loading &&
+						(user ? (
+							<Link
+								to="/profile"
+								className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+								{userInitials}
+							</Link>
 						) : (
-							<Menu className="h-5 w-5" />
-						)}
-					</Button>
+							<Link
+								to="/auth/login"
+								className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+								<LogIn className="h-4 w-4" />
+								Đăng nhập
+							</Link>
+						))}
 				</div>
 			</div>
-
-			{/* Mobile Nav */}
-			{mobileOpen && (
-				<div className="md:hidden border-t border-border bg-background px-4 pb-3 pt-2">
-					<nav className="flex flex-col gap-1">
-						{navItems.map(({ to, label, icon: Icon, end }) => (
-							<NavLink
-								key={to}
-								to={to}
-								end={end}
-								onClick={() => setMobileOpen(false)}
-								className={({ isActive }) =>
-									cn(
-										'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-										isActive
-											? 'bg-accent text-accent-foreground'
-											: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-									)
-								}>
-								<Icon className="h-4 w-4" />
-								{label}
-							</NavLink>
-						))}
-						{!loading && (
-							<div className="mt-2 border-t border-border pt-2">
-								{user ? (
-									<>
-										<Link
-											to="/profile"
-											onClick={() => setMobileOpen(false)}
-											className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-											<User className="h-4 w-4" />
-											{user.firstName} {user.lastName}
-										</Link>
-										<button
-											type="button"
-											onClick={() => {
-												setMobileOpen(false);
-												handleLogout();
-											}}
-											className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-											<LogOut className="h-4 w-4" />
-											Đăng xuất
-										</button>
-									</>
-								) : (
-									<Link
-										to="/auth/login"
-										onClick={() => setMobileOpen(false)}
-										className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-										<LogIn className="h-4 w-4" />
-										Đăng nhập
-									</Link>
-								)}
-							</div>
-						)}
-					</nav>
-				</div>
-			)}
 		</header>
 	);
 }

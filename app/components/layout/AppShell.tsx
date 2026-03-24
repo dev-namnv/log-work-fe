@@ -1,3 +1,4 @@
+import BottomNav from './BottomNav';
 import Footer from './Footer';
 import Header from './Header';
 
@@ -9,10 +10,11 @@ export default function AppShell({ children }: AppShellProps) {
 	return (
 		<div className="flex min-h-screen flex-col bg-background">
 			<Header />
-			<main className="flex-1 mx-auto w-full max-w-screen-xl px-4 sm:px-6 py-6">
+			<main className="flex-1 mx-auto w-full max-w-screen-xl px-4 sm:px-6 py-6 pb-20 md:pb-6">
 				{children}
 			</main>
 			<Footer />
+			<BottomNav />
 		</div>
 	);
 }

@@ -14,7 +14,7 @@ import type {
 export interface CreateWorkLogDto {
 	organizationId: string;
 	checkIn: string; // ISO 8601
-	checkOut: string; // ISO 8601
+	checkOut: string | null; // ISO 8601, null khi chỉ check-in
 	note?: string;
 }
 
