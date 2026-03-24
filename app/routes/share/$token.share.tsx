@@ -67,6 +67,13 @@ function LogRow({ log }: { log: WorkLog }) {
 				<span className="text-muted-foreground ml-1.5 text-xs">
 					{isoToWeekday(log.date)}
 				</span>
+				{log.skipLunchBreak && (
+					<span
+						title="Không trừ nghỉ trưa"
+						className="ml-1.5 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+						Xuyên trưa
+					</span>
+				)}
 			</td>
 			<td className="py-2.5 px-3 tabular-nums">{isoToHHmm(log.checkIn)}</td>
 			<td className="py-2.5 px-3 tabular-nums">

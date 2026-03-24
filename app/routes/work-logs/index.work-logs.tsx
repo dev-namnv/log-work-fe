@@ -39,7 +39,16 @@ function WorkLogRow({ log }: { log: WorkLog }) {
 			to={`/work-logs/${log._id}`}
 			className="flex items-center justify-between rounded-lg border px-4 py-3 hover:bg-muted/50 transition-colors text-sm">
 			<div className="space-y-0.5">
-				<p className="font-medium">{formatDate(log.date)}</p>
+				<div className="flex items-center gap-2">
+					<p className="font-medium">{formatDate(log.date)}</p>
+					{log.skipLunchBreak && (
+						<span
+							title="Không trừ nghỉ trưa"
+							className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+							Xuyên trưa
+						</span>
+					)}
+				</div>
 				<p className="text-muted-foreground text-xs">
 					{log.checkIn ? formatDateTime(log.checkIn) : '—'} →{' '}
 					{log.checkOut ? formatDateTime(log.checkOut) : '—'}

@@ -24,11 +24,10 @@ export function meta() {
 }
 
 /**
- * Chuyển "YYYY-MM-DD" + "HH:mm" → ISO 8601 string (local time treated as UTC+7).
- * Backend nhận ISO datetime nên cần ghép date + time thành datetime đầy đủ.
+ * Chuyển "YYYY-MM-DD" + "HH:mm" → ISO 8601 string với múi giờ UTC+7 tường minh.
  */
 function toISO(date: string, time: string): string {
-	return new Date(`${date}T${time}:00`).toISOString();
+	return new Date(`${date}T${time}:00+07:00`).toISOString();
 }
 
 export default function NewWorkLogPage() {
@@ -39,9 +38,12 @@ export default function NewWorkLogPage() {
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [checkInTime, setCheckInTime] = useState('08:00');
 	const [checkOutTime, setCheckOutTime] = useState('17:30');
+	const [skipLunchBreak, setSkipLunchBreak] = useState(false);
 
-	// Ngày mặc định là hôm nay
-	const today = new Date().toISOString().slice(0, 10);
+	// Ngày mặc định là hôm nay theo giờ Việt Nam
+	const today = new Date().toLocaleDateString('en-CA', {
+		timeZone: 'Asia/Ho_Chi_Minh',
+	});
 
 	// Khi danh sách tổ chức load xong, tự chọn cơ quan đầu tiên
 	useEffect(() => {
@@ -77,6 +79,7 @@ export default function NewWorkLogPage() {
 				checkIn: toISO(date, checkInTime),
 				checkOut: toISO(date, checkOutTime),
 				note: (data.get('note') as string) || undefined,
+				skipLunchBreak,
 			},
 			{
 				onError: (err) => {
@@ -174,6 +177,24 @@ export default function NewWorkLogPage() {
 								/>
 							</div>
 						</div>
+
+						{/* Bỏ qua nghỉ trưa */}
+						<label className="flex items-start gap-3 cursor-pointer group">
+							<input
+								type="checkbox"
+								checked={skipLunchBreak}
+								onChange={(e) => setSkipLunchBreak(e.target.checked)}
+								className="h-4 w-4 shrink-0 rounded border-input accent-primary cursor-pointer"
+							/>
+							<span className="space-y-0.5 align-start flex flex-col">
+								<span className="text-sm font-medium leading-none group-hover:text-foreground">
+									Bỏ qua nghỉ trưa
+								</span>
+								<span className="block text-xs text-muted-foreground">
+									Không trừ thời gian nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi)
+								</span>
+							</span>
+						</label>
 
 						{/* Ghi chú */}
 						<div className="space-y-1.5">

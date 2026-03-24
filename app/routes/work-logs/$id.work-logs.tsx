@@ -27,20 +27,26 @@ export function meta() {
 	];
 }
 
-/** ISO datetime → "HH:mm" */
+/** ISO datetime → "HH:mm" theo giờ Việt Nam */
 function toTimeString(iso: string | null): string {
 	if (!iso) return '';
-	const d = new Date(iso);
-	return d.toTimeString().slice(0, 5);
+	return new Date(iso).toLocaleTimeString('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+		timeZone: 'Asia/Ho_Chi_Minh',
+	});
 }
 
-/** ISO datetime → "YYYY-MM-DD" */
+/** ISO datetime → "YYYY-MM-DD" theo giờ Việt Nam */
 function toDateString(iso: string): string {
-	return new Date(iso).toISOString().slice(0, 10);
+	return new Date(iso).toLocaleDateString('en-CA', {
+		timeZone: 'Asia/Ho_Chi_Minh',
+	});
 }
 
 function toISO(date: string, time: string): string {
-	return new Date(`${date}T${time}:00`).toISOString();
+	return new Date(`${date}T${time}:00+07:00`).toISOString();
 }
 
 function formatDateVN(iso: string) {
@@ -63,6 +69,16 @@ export default function WorkLogDetailPage() {
 	const [updateError, setUpdateError] = useState<string | null>(null);
 	const [updateSuccess, setUpdateSuccess] = useState(false);
 	const [deleteConfirm, setDeleteConfirm] = useState(false);
+	const [skipLunchBreak, setSkipLunchBreak] = useState<boolean | undefined>(
+		undefined,
+	);
+
+	// Đồng bộ giá trị sau khi log được load
+	useEffect(() => {
+		if (log && skipLunchBreak === undefined) {
+			setSkipLunchBreak(log.skipLunchBreak ?? false);
+		}
+	}, [log, skipLunchBreak]);
 
 	// Reset success message vào lần kế tiếp
 	useEffect(() => {
@@ -114,6 +130,7 @@ export default function WorkLogDetailPage() {
 				checkIn: toISO(date, checkInTime),
 				checkOut: toISO(date, checkOutTime),
 				note: (data.get('note') as string) || undefined,
+				skipLunchBreak: skipLunchBreak ?? false,
 			},
 			{
 				onSuccess: () => setUpdateSuccess(true),
@@ -198,7 +215,23 @@ export default function WorkLogDetailPage() {
 								/>
 							</div>
 						</div>
-
+						{/* Bỏ qua nghỉ trưa */}
+						<label className="flex items-start gap-3 cursor-pointer group">
+							<input
+								type="checkbox"
+								checked={skipLunchBreak ?? false}
+								onChange={(e) => setSkipLunchBreak(e.target.checked)}
+								className="h-4 w-4 shrink-0 rounded border-input accent-primary cursor-pointer"
+							/>
+							<span className="space-y-0.5 align-start flex flex-col">
+								<span className="text-sm font-medium leading-none group-hover:text-foreground">
+									Bỏ qua nghỉ trưa
+								</span>
+								<span className="block text-xs text-muted-foreground">
+									Không trừ thời gian nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi)
+								</span>
+							</span>
+						</label>
 						{/* Ghi chú */}
 						<div className="space-y-1.5">
 							<Label htmlFor="note">Ghi chú</Label>

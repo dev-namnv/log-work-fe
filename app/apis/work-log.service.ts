@@ -18,12 +18,16 @@ export interface CreateWorkLogDto {
 	checkIn: string; // ISO 8601
 	checkOut: string | null; // ISO 8601, null khi chỉ check-in
 	note?: string;
+	/** Bỏ qua khấu trừ nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi) */
+	skipLunchBreak?: boolean;
 }
 
 export interface UpdateWorkLogDto {
 	checkIn?: string; // ISO 8601
 	checkOut?: string; // ISO 8601
 	note?: string;
+	/** Bỏ qua khấu trừ nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi) */
+	skipLunchBreak?: boolean;
 }
 
 export interface SearchWorkLogDto {

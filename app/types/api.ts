@@ -79,6 +79,8 @@ export interface WorkLog {
 	checkOut: string | null; // ISO 8601, null nếu chưa check-out
 	hours: number;
 	note: string;
+	/** Bỏ qua khấu trừ nghỉ trưa */
+	skipLunchBreak?: boolean;
 	createdAt: string;
 	updatedAt: string;
 }
