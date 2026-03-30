@@ -51,7 +51,9 @@ export default function NewWorkLogPage() {
 			const first = orgs.data[0];
 			setSelectedOrgId(first._id);
 			setCheckInTime(first.workSchedule.workStartTime);
-			setCheckOutTime(first.workSchedule.workEndTime);
+			if (first.workSchedule.workEndTime) {
+				setCheckOutTime(first.workSchedule.workEndTime);
+			}
 		}
 	}, [orgs]);
 
@@ -173,7 +175,6 @@ export default function NewWorkLogPage() {
 									type="time"
 									value={checkOutTime}
 									onChange={(e) => setCheckOutTime(e.target.value)}
-									required
 								/>
 							</div>
 						</div>

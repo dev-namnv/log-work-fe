@@ -211,7 +211,6 @@ export default function WorkLogDetailPage() {
 									name="checkOutTime"
 									type="time"
 									defaultValue={toTimeString(log.checkOut)}
-									required
 								/>
 							</div>
 						</div>
