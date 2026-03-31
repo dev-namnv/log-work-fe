@@ -1,3 +1,4 @@
+import { getToken, removeToken } from '~/lib/token';
 import type { ApiError } from '~/types/api';
 
 // ---------------------------------------------------------------------------
@@ -92,17 +93,26 @@ async function request<T>(
 	if (json !== undefined) {
 		headers['Content-Type'] = 'application/json';
 	}
+	const token = getToken();
+	if (token) {
+		headers['Authorization'] = `Bearer ${token}`;
+	}
 	if (extraHeaders) {
 		Object.assign(headers, extraHeaders);
 	}
 
 	const res = await fetch(url, {
 		method,
-		credentials: 'include',
 		headers,
 		body: json !== undefined ? JSON.stringify(json) : undefined,
 		...rest,
 	});
+
+	if (res.status === 401 && window.location.pathname !== '/auth/login') {
+		// Optional: auto-logout on 401 Unauthorized
+		removeToken();
+		window.location.href = '/auth/login';
+	}
 
 	return parseResponse<T>(res);
 }

@@ -63,6 +63,7 @@ export interface ResendOtpDto {
 // ---------------------------------------------------------------------------
 
 export interface AuthResponse {
+	accessToken: string;
 	account: Account;
 }
 

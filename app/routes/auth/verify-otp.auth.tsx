@@ -14,6 +14,8 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { useAuth } from '~/contexts/auth-context';
+import { setToken } from '~/lib/token';
 
 export function meta() {
 	return [
@@ -26,6 +28,7 @@ export default function VerifyOtpPage() {
 	const [searchParams] = useSearchParams();
 	const email = searchParams.get('email') ?? '';
 	const navigate = useNavigate();
+	const { setUser } = useAuth();
 	const [error, setError] = useState<string | null>(null);
 	const [info, setInfo] = useState<string | null>(null);
 	const [verifying, setVerifying] = useState(false);
@@ -43,7 +46,9 @@ export default function VerifyOtpPage() {
 		const otp = (new FormData(e.currentTarget).get('otp') as string) ?? '';
 		setVerifying(true);
 		try {
-			await AuthService.verifyOtp({ email, otp });
+			const res = await AuthService.verifyOtp({ email, otp });
+			setToken(res.accessToken);
+			setUser(res.account);
 			navigate('/');
 		} catch (err) {
 			setError(

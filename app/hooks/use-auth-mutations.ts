@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type {
 	ChangePasswordDto,
@@ -8,15 +8,17 @@ import type {
 } from '~/apis/auth.service';
 import { AuthService } from '~/apis/auth.service';
 import { ApiException } from '~/apis/http';
-import { CURRENT_USER_QUERY_KEY, useAuth } from '~/contexts/auth-context';
+import { useAuth } from '~/contexts/auth-context';
+import { removeToken, setToken } from '~/lib/token';
 
 export function useLoginMutation() {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+	const { setUser } = useAuth();
 	return useMutation({
 		mutationFn: (dto: LoginDto) => AuthService.login(dto),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+		onSuccess: (res) => {
+			setToken(res.accessToken);
+			setUser(res.account);
 			navigate('/');
 		},
 		onError: (err: Error, variables: LoginDto) => {
@@ -34,11 +36,12 @@ export function useLoginMutation() {
 
 export function useRegisterMutation() {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+	const { setUser } = useAuth();
 	return useMutation({
 		mutationFn: (dto: RegisterDto) => AuthService.register(dto),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+		onSuccess: (res) => {
+			setToken(res.accessToken);
+			setUser(res.account);
 			navigate('/');
 		},
 	});
@@ -50,7 +53,7 @@ export function useLogoutMutation() {
 	return useMutation({
 		mutationFn: AuthService.logout,
 		onSettled: () => {
-			// Xóa cache user dù API thành công hay thất bại
+			removeToken();
 			setUser(null);
 			navigate('/auth/login');
 		},
