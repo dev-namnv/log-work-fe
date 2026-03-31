@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
@@ -12,6 +13,7 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { useAuth } from '~/contexts/auth-context';
 import { useLoginMutation } from '~/hooks/use-auth-mutations';
 import type { Route } from './+types/login.auth';
 
@@ -27,6 +29,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function LoginPage() {
 	const { mutate: login, isPending, error: mutationError } = useLoginMutation();
+	const { loading, user } = useAuth();
 
 	// Ẩn lỗi khi trường hợp OTP redirect — sẽ navigate thay vì hiển thị
 	const isOtpCase =
@@ -49,6 +52,13 @@ export default function LoginPage() {
 			password: data.get('password') as string,
 		});
 	}
+
+	useEffect(() => {
+		if (!loading && user) {
+			// Nếu đã có user, điều hướng về trang chủ
+			window.location.href = '/';
+		}
+	}, [loading, user]);
 
 	return (
 		<Card className="w-full max-w-sm">
