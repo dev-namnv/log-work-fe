@@ -99,7 +99,9 @@ function LogRow({ log }: { log: WorkLog }) {
 					<span className="text-muted-foreground">—</span>
 				)}
 			</td>
-			<td className="py-2.5 px-3 text-muted-foreground max-w-[180px] truncate">
+			<td
+				className="py-2.5 px-3 text-muted-foreground max-w-[180px] truncate"
+				title={log.note || undefined}>
 				{log.note || '—'}
 			</td>
 		</tr>
