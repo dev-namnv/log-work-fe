@@ -1,7 +1,14 @@
 import { ClipboardCheck } from 'lucide-react';
-import { Link, Outlet } from 'react-router';
+import { Link, Navigate, Outlet } from 'react-router';
+import { useAuth } from '~/contexts/auth-context';
 
 export default function AuthLayout() {
+	const { user, loading } = useAuth();
+
+	if (!loading && user) {
+		return <Navigate to="/" replace />;
+	}
+
 	return (
 		<div className="flex min-h-screen flex-col bg-muted/40">
 			{/* Top bar */}
