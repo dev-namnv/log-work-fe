@@ -4,7 +4,7 @@ import type {
 	Notice,
 	NoticeType,
 	NoticeVariant,
-} from '~/types/api';
+} from '~/types';
 
 // ---------------------------------------------------------------------------
 // Request DTOs

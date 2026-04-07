@@ -23,7 +23,7 @@ export const WORK_LOG_KEYS = {
 		[...WORK_LOG_KEYS.all, 'share-view', token] as const,
 };
 
-export function useWorkLogsQuery(dto: SearchWorkLogDto = {}) {
+export function useWorkLogsQuery(dto: SearchWorkLogDto) {
 	return useQuery({
 		queryKey: WORK_LOG_KEYS.list(dto),
 		queryFn: () => WorkLogService.search(dto),

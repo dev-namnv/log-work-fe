@@ -1,5 +1,5 @@
 import { http } from '~/apis/http';
-import type { Account } from '~/types/api';
+import type { Account } from '~/types';
 
 // ---------------------------------------------------------------------------
 // Request DTOs

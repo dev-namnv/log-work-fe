@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { startOfDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { ApiException } from '~/apis/http';
 import { WorkLogService } from '~/apis/work-log.service';
@@ -88,7 +87,7 @@ export default function CheckInPage() {
 	const todayLog: WorkLog | undefined = useMemo(() => {
 		if (!report) return undefined;
 		return report.logs.find(
-			(log) => log.date === startOfDay(today).toISOString(),
+			(log) => localDateStr(new Date(log.date)) === today,
 		);
 	}, [report, today]);
 

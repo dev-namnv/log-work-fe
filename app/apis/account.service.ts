@@ -1,5 +1,5 @@
 import { http } from '~/apis/http';
-import type { Account, MessageResponse, PaginatedResponse } from '~/types/api';
+import type { Account, MessageResponse, PaginatedResponse } from '~/types';
 
 // ---------------------------------------------------------------------------
 // Request DTOs

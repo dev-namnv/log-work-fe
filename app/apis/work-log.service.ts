@@ -4,10 +4,11 @@ import type {
 	MonthlyReport,
 	OrganizationByReport,
 	PaginatedResponse,
+	PaginationDto,
 	WorkLog,
 	WorkLogShare,
 	WorkLogShareView,
-} from '~/types/api';
+} from '~/types';
 
 // ---------------------------------------------------------------------------
 // Request DTOs
@@ -30,10 +31,11 @@ export interface UpdateWorkLogDto {
 	skipLunchBreak?: boolean;
 }
 
-export interface SearchWorkLogDto {
+export interface SearchWorkLogDto extends PaginationDto {
 	keyword?: string;
-	page?: number;
-	limit?: number;
+	month?: number; // 1–12
+	year?: number;
+	organizationId?: string;
 }
 
 export interface MonthlyReportParams {
@@ -72,9 +74,7 @@ export class WorkLogService {
 	/**
 	 * Tìm kiếm / phân trang bản ghi chấm công của người dùng hiện tại.
 	 */
-	static search(
-		dto: SearchWorkLogDto = {},
-	): Promise<PaginatedResponse<WorkLog>> {
+	static search(dto: SearchWorkLogDto): Promise<PaginatedResponse<WorkLog>> {
 		return http.post<PaginatedResponse<WorkLog>>('/work-log/search', {
 			json: dto,
 		});

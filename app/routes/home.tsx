@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { startOfDay } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { ApiException } from '~/apis/http';
@@ -12,7 +11,7 @@ import {
 	WORK_LOG_KEYS,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 export function meta() {
 	return [
@@ -189,11 +188,11 @@ export default function HomePage() {
 		organizationId: selectedOrgId || undefined,
 	});
 
-	// Log hôm nay (so sánh với ISO midnight theo giờ địa phương)
+	// Log hôm nay (so sánh theo ngày VN)
 	const todayLog: WorkLog | undefined = useMemo(() => {
 		if (!report) return undefined;
 		return report.logs.find(
-			(log) => log.date === startOfDay(todayVN).toISOString(),
+			(log) => localDateStr(new Date(log.date)) === todayVN,
 		);
 	}, [report, todayVN]);
 

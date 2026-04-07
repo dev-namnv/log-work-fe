@@ -1,74 +1,5 @@
-// ---------------------------------------------------------------------------
-// Shared API response shapes
-// ---------------------------------------------------------------------------
-
-export interface PaginatedResponse<T> {
-	data: T[];
-	total: number;
-	page: number;
-	limit: number;
-	totalPages: number;
-}
-
-export interface ApiError {
-	statusCode: number;
-	message: string;
-	error?: string;
-}
-
-export interface MessageResponse {
-	message: string;
-}
-
-// ---------------------------------------------------------------------------
-// Account
-// ---------------------------------------------------------------------------
-
-export type AccountRole = 'USER' | 'ADMIN';
-
-export interface AccountMetadata {
-	sendMail: boolean;
-	sendTelegram: boolean;
-}
-
-export interface Account {
-	_id: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	role: AccountRole;
-	isVerified: boolean;
-	telegramChatId: string | null;
-	metadata: AccountMetadata;
-	languages: string[];
-	createdAt: string;
-	updatedAt: string;
-}
-
-// ---------------------------------------------------------------------------
-// Organization
-// ---------------------------------------------------------------------------
-
-export interface WorkSchedule {
-	workStartTime: string; // "HH:mm"
-	workEndTime: string; // "HH:mm"
-	lunchBreakMinutes: number;
-}
-
-export interface Organization {
-	_id: string;
-	name: string;
-	description: string;
-	workSchedule: WorkSchedule;
-	owner: Account | string;
-	members: (Account | string)[];
-	createdAt: string;
-	updatedAt: string;
-}
-
-// ---------------------------------------------------------------------------
-// WorkLog
-// ---------------------------------------------------------------------------
+import type { Account } from './account.type';
+import type { Organization, WorkSchedule } from './organization.type';
 
 export interface WorkLog {
 	_id: string;
@@ -167,23 +98,4 @@ export interface WorkLogShareView {
 	missingHours: number;
 	attendanceRate: number;
 	logs: WorkLog[];
-}
-
-// ---------------------------------------------------------------------------
-// Notice
-// ---------------------------------------------------------------------------
-
-export type NoticeType = 'Registered' | 'Application' | 'Error' | 'Work Log';
-export type NoticeVariant = 'default' | 'success' | 'warning' | 'error';
-
-export interface Notice {
-	_id: string;
-	account: Account | string;
-	type: NoticeType;
-	variant: NoticeVariant;
-	message: string;
-	link: string | null;
-	isRead: boolean;
-	createdAt: string;
-	updatedAt: string;
 }

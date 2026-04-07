@@ -1,5 +1,5 @@
 import { getToken, removeToken } from '~/lib/token';
-import type { ApiError } from '~/types/api';
+import type { ApiError } from '~/types';
 
 // ---------------------------------------------------------------------------
 // Config

@@ -10,7 +10,7 @@ import {
 	useMonthlyReportQuery,
 	useWorkLogsQuery,
 } from '~/hooks/use-work-log-queries';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 export function meta() {
 	return [
@@ -83,6 +83,9 @@ export default function WorkLogsPage() {
 	} = useWorkLogsQuery({
 		keyword: search,
 		limit: 50,
+		month,
+		year,
+		page: 1,
 	});
 
 	const { data: report, isLoading: reportLoading } = useMonthlyReportQuery({
