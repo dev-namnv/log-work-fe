@@ -1,4 +1,4 @@
-import { getToken, removeToken } from '~/lib/token';
+import { getToken } from '~/lib/token';
 import type { ApiError } from '~/types';
 
 // ---------------------------------------------------------------------------
@@ -108,10 +108,12 @@ async function request<T>(
 		...rest,
 	});
 
-	if (res.status === 401 && window.location.pathname !== '/auth/login') {
+	if (
+		res.status === 401 &&
+		!['/auth/login', '/auth/logout'].includes(window.location.pathname)
+	) {
 		// Optional: auto-logout on 401 Unauthorized
-		removeToken();
-		window.location.href = '/auth/login';
+		window.location.href = '/auth/logout';
 	}
 
 	return parseResponse<T>(res);
