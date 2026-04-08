@@ -53,6 +53,7 @@ export default [
 			route('reset-password', 'routes/auth/reset-password.auth.tsx'),
 			route('verify-otp', 'routes/auth/verify-otp.auth.tsx'),
 			route('verify-email/:token', 'routes/auth/$token.verify-email.auth.tsx'),
+			route('logout', 'routes/auth/logout.auth.tsx'),
 		]),
 	]),
 

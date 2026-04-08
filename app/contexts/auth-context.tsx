@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AuthService } from '~/apis/auth.service';
 import { setUser } from '~/store/auth.slice';
 import { useAppDispatch, useAppSelector } from '~/store/hooks';
-import type { Account } from '~/types/api';
+import type { Account } from '~/types';
 
 // Query key dùng chung để các mutation có thể invalidate / set cache
 export const CURRENT_USER_QUERY_KEY = ['currentUser'] as const;
