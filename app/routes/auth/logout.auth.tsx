@@ -1,29 +1,39 @@
 import { useEffect } from 'react';
-import { redirect } from 'react-router';
+import { useNavigate } from 'react-router';
 import { AuthService } from '~/apis/auth.service';
-import { useAuth } from '~/contexts/auth-context';
 import { removeToken } from '~/lib/token';
+import { store } from '~/store';
+import { setUser } from '~/store/auth.slice';
 
-export default async function Logout() {
-	const { setUser } = useAuth();
-
-	const onLogout = async () => {
-		await AuthService.logout();
-		redirect('/auth/login');
-		// Clear client-side token and user data
-		removeToken();
-		setUser(null);
-	};
+export default function LogoutPage() {
+	const navigate = useNavigate();
 
 	useEffect(() => {
-		onLogout();
-	}, []);
+		const performLogout = async () => {
+			try {
+				// Gọi API logout
+				await AuthService.logout();
+			} catch (err) {
+				// Nếu API error, vẫn logout client-side
+				console.error('Logout error:', err);
+			}
+
+			// Clear token và Redux state
+			removeToken();
+			store.dispatch(setUser(null));
+
+			// Redirect về login
+			navigate('/auth/login', { replace: true });
+		};
+
+		performLogout();
+	}, [navigate]);
 
 	return (
 		<div className="flex h-screen items-center justify-center">
 			<div className="text-center">
-				<h1 className="mb-4 text-2xl font-bold">Logging out...</h1>
-				<p className="text-gray-600">Please wait while we log you out.</p>
+				<h1 className="mb-4 text-2xl font-bold">Đang đăng xuất...</h1>
+				<p className="text-gray-600">Vui lòng chờ một lát.</p>
 			</div>
 		</div>
 	);

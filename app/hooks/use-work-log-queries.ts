@@ -38,11 +38,15 @@ export function useWorkLogDetailQuery(id: string) {
 	});
 }
 
-export function useMonthlyReportQuery(params: MonthlyReportParams) {
+export function useMonthlyReportQuery(
+	params: MonthlyReportParams,
+	options?: { enabled?: boolean },
+) {
 	return useQuery({
 		queryKey: WORK_LOG_KEYS.monthlyReport(params),
 		queryFn: () => WorkLogService.getMonthlyReport(params),
-		enabled: !!params.month && !!params.year,
+		enabled: !!params.month && !!params.year && !!params.organizationId,
+		...options,
 	});
 }
 

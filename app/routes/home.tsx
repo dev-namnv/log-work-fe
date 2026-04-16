@@ -159,7 +159,8 @@ export default function HomePage() {
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
+	// Chỉ gọi API nếu đã login
+	const { data: orgs } = useOrganizationsQuery({ limit: 100 }, { enabled: !!user });
 
 	const todayVN = localDateStr(now);
 	const currentMonth = now.getMonth() + 1;
@@ -182,11 +183,14 @@ export default function HomePage() {
 		data: report,
 		isLoading: reportLoading,
 		refetch,
-	} = useMonthlyReportQuery({
-		month: currentMonth,
-		year: currentYear,
-		organizationId: selectedOrgId || undefined,
-	});
+	} = useMonthlyReportQuery(
+		{
+			month: currentMonth,
+			year: currentYear,
+			organizationId: selectedOrgId || undefined,
+		},
+		{ enabled: !!selectedOrgId },
+	);
 
 	// Log hôm nay (so sánh theo ngày VN)
 	const todayLog: WorkLog | undefined = useMemo(() => {

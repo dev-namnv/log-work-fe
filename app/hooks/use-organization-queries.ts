@@ -11,10 +11,14 @@ export const ORGANIZATION_KEYS = {
 	detail: (id: string) => [...ORGANIZATION_KEYS.details(), id] as const,
 };
 
-export function useOrganizationsQuery(dto: SearchOrganizationDto = {}) {
+export function useOrganizationsQuery(
+	dto: SearchOrganizationDto = {},
+	options?: { enabled?: boolean },
+) {
 	return useQuery({
 		queryKey: ORGANIZATION_KEYS.list(dto),
 		queryFn: () => OrganizationService.search(dto),
+		...options,
 	});
 }
 
