@@ -11,7 +11,7 @@ import {
 	useShareLinksQuery,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { WorkLog, WorkLogShare } from '~/types/api';
+import type { WorkLog, WorkLogShare } from '~/types';
 
 export function meta() {
 	return [

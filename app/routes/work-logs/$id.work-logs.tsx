@@ -18,7 +18,7 @@ import {
 	useUpdateWorkLogMutation,
 } from '~/hooks/use-work-log-mutations';
 import { useWorkLogDetailQuery } from '~/hooks/use-work-log-queries';
-import type { Organization } from '~/types/api';
+import type { Organization } from '~/types';
 
 export function meta() {
 	return [

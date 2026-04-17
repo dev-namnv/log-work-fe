@@ -4,7 +4,7 @@ import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import { useOrgReportQuery } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 export function meta() {
 	return [
@@ -129,7 +129,7 @@ export default function EmployeeDetailPage() {
 		if (!org) return [];
 		const owner = typeof org.owner === 'object' ? org.owner : null;
 		const members = org.members.filter(
-			(m): m is import('~/types/api').Account => typeof m === 'object',
+			(m): m is import('~/types').Account => typeof m === 'object',
 		);
 		return owner ? [owner, ...members] : members;
 	})();

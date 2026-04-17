@@ -45,7 +45,7 @@ export function useMonthlyReportQuery(
 	return useQuery({
 		queryKey: WORK_LOG_KEYS.monthlyReport(params),
 		queryFn: () => WorkLogService.getMonthlyReport(params),
-		enabled: !!params.month && !!params.year && !!params.organizationId,
+		enabled: !!params.month && !!params.year,
 		...options,
 	});
 }

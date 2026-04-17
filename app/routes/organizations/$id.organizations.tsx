@@ -13,7 +13,7 @@ import {
 	useRemoveMemberMutation,
 } from '~/hooks/use-organization-mutations';
 import { useOrganizationDetailQuery } from '~/hooks/use-organization-queries';
-import type { Account } from '~/types/api';
+import type { Account } from '~/types';
 
 export function meta() {
 	return [

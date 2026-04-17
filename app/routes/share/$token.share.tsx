@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import CalendarView from '~/components/work-log/CalendarView';
 import { useShareViewQuery } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 export function meta() {
 	return [

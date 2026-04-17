@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
 import { WorkLogService } from '~/apis/work-log.service';
 import { Button } from '~/components/ui/button';
@@ -153,14 +153,21 @@ function ConfirmReCheckOutModal({
 export default function HomePage() {
 	const { user, loading: authLoading } = useAuth();
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	const [now, setNow] = useState(new Date());
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [optimisticTodayLog, setOptimisticTodayLog] = useState<WorkLog | null>(
+		null,
+	);
 
 	// Chỉ gọi API nếu đã login
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 }, { enabled: !!user });
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: !!user },
+	);
 
 	const todayVN = localDateStr(now);
 	const currentMonth = now.getMonth() + 1;
@@ -200,6 +207,19 @@ export default function HomePage() {
 		);
 	}, [report, todayVN]);
 
+	const displayTodayLog = optimisticTodayLog ?? todayLog;
+
+	useEffect(() => {
+		if (!optimisticTodayLog || !todayLog) return;
+
+		const sameRecord = optimisticTodayLog._id === todayLog._id;
+		const checkOutSynced = !optimisticTodayLog.checkOut || !!todayLog.checkOut;
+
+		if (sameRecord && checkOutSynced) {
+			setOptimisticTodayLog(null);
+		}
+	}, [optimisticTodayLog, todayLog]);
+
 	// Check-in: tạo mới
 	const checkInMutation = useMutation({
 		mutationFn: () =>
@@ -208,12 +228,32 @@ export default function HomePage() {
 				checkIn: new Date().toISOString(),
 				checkOut: null,
 			}),
-		onSuccess: () => {
+		onMutate: () => {
+			const nowIso = new Date().toISOString();
+			setOptimisticTodayLog(
+				(prev) =>
+					prev ?? {
+						_id: 'optimistic-check-in',
+						account: user?._id ?? '',
+						organization: selectedOrgId,
+						date: nowIso,
+						checkIn: nowIso,
+						checkOut: null,
+						hours: 0,
+						note: '',
+						createdAt: nowIso,
+						updatedAt: nowIso,
+					},
+			);
+		},
+		onSuccess: (createdLog) => {
+			setOptimisticTodayLog(createdLog);
 			setErrorMsg(null);
 			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
+			setOptimisticTodayLog(null);
 			setErrorMsg(
 				err instanceof ApiException ? err.message : 'Check-in thất bại.',
 			);
@@ -224,12 +264,35 @@ export default function HomePage() {
 	const checkOutMutation = useMutation({
 		mutationFn: (logId: string) =>
 			WorkLogService.update(logId, { checkOut: new Date().toISOString() }),
-		onSuccess: () => {
+		onMutate: (logId) => {
+			const nowIso = new Date().toISOString();
+			setOptimisticTodayLog((prev) => {
+				const baseLog = prev ?? todayLog;
+				if (!baseLog) return prev;
+
+				const hours = Math.max(
+					0,
+					(new Date(nowIso).getTime() - new Date(baseLog.checkIn).getTime()) /
+						3600000,
+				);
+
+				return {
+					...baseLog,
+					_id: baseLog._id || logId,
+					checkOut: nowIso,
+					hours,
+					updatedAt: nowIso,
+				};
+			});
+		},
+		onSuccess: (updatedLog) => {
+			setOptimisticTodayLog(updatedLog);
 			setErrorMsg(null);
 			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
+			setOptimisticTodayLog(todayLog ?? null);
 			setErrorMsg(
 				err instanceof ApiException ? err.message : 'Check-out thất bại.',
 			);
@@ -261,16 +324,22 @@ export default function HomePage() {
 	}
 
 	const isPending = checkInMutation.isPending || checkOutMutation.isPending;
-	const isCheckedIn = !!todayLog && !todayLog.checkOut;
-	const isCheckedOut = !!todayLog && !!todayLog.checkOut;
+	const isCheckedIn = !!displayTodayLog && !displayTodayLog.checkOut;
+	const isCheckedOut = !!displayTodayLog && !!displayTodayLog.checkOut;
 	const selectedOrg = orgs?.data.find((o) => o._id === selectedOrgId);
 
 	function handleCheckOut() {
-		if (!todayLog) return;
+		if (!displayTodayLog) return;
+		if (!displayTodayLog._id || displayTodayLog._id === 'optimistic-check-in') {
+			setErrorMsg(
+				'Đang đồng bộ dữ liệu check-in, vui lòng thử lại sau vài giây.',
+			);
+			return;
+		}
 		if (isCheckedOut) {
 			setConfirmOpen(true);
 		} else {
-			checkOutMutation.mutate(todayLog._id);
+			checkOutMutation.mutate(displayTodayLog._id);
 		}
 	}
 
@@ -280,6 +349,10 @@ export default function HomePage() {
 				.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 				.slice(0, 5)
 		: [];
+
+	function onGotoWorkLogDetail(log: WorkLog) {
+		navigate(`/work-logs/${log._id}`);
+	}
 
 	return (
 		<>
@@ -342,7 +415,7 @@ export default function HomePage() {
 								'border-green-500/40 bg-green-50 dark:bg-green-950/20',
 							isCheckedIn &&
 								'border-amber-500/40 bg-amber-50 dark:bg-amber-950/20',
-							!todayLog && !reportLoading && 'border-dashed',
+							!displayTodayLog && !reportLoading && 'border-dashed',
 						)}>
 						{reportLoading ? (
 							<div className="h-16 flex items-center justify-center">
@@ -355,17 +428,17 @@ export default function HomePage() {
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Vào</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums">
-										{isoToHHmm(todayLog!.checkIn)}
+										{isoToHHmm(displayTodayLog!.checkIn)}
 									</span>
 								</div>
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Ra</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums text-green-600">
-										{isoToHHmm(todayLog!.checkOut!)}
+										{isoToHHmm(displayTodayLog!.checkOut!)}
 									</span>
 								</div>
 								<p className="text-sm font-medium text-green-600 text-center">
-									✓ Đã chấm công xong · {todayLog!.hours.toFixed(2)} giờ
+									✓ Đã chấm công xong · {displayTodayLog!.hours.toFixed(2)} giờ
 								</p>
 								<Button
 									size="lg"
@@ -380,7 +453,7 @@ export default function HomePage() {
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Vào</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums text-amber-600">
-										{isoToHHmm(todayLog!.checkIn)}
+										{isoToHHmm(displayTodayLog!.checkIn)}
 									</span>
 								</div>
 								<p className="text-sm text-muted-foreground text-center">
@@ -499,8 +572,9 @@ export default function HomePage() {
 									<tbody>
 										{recentLogs.map((log) => (
 											<tr
+												onClick={() => onGotoWorkLogDetail(log)}
 												key={log._id}
-												className="border-b last:border-0 hover:bg-muted/40 transition-colors">
+												className="border-b last:border-0 hover:bg-muted/40 transition-colors cursor-pointer">
 												<td className="py-2 px-3 font-medium">
 													{isoToDateShort(log.date)}
 												</td>
@@ -555,14 +629,15 @@ export default function HomePage() {
 			</div>
 
 			{/* Modal xác nhận cập nhật check-out */}
-			{confirmOpen && todayLog && (
+			{confirmOpen && displayTodayLog && displayTodayLog.checkOut && (
 				<ConfirmReCheckOutModal
-					oldTime={isoToHHmm(todayLog.checkOut!)}
+					oldTime={isoToHHmm(displayTodayLog.checkOut)}
 					newTime={localTimeStr(now)}
 					isPending={isPending}
 					onConfirm={() => {
+						if (!displayTodayLog._id) return;
 						setConfirmOpen(false);
-						checkOutMutation.mutate(todayLog._id);
+						checkOutMutation.mutate(displayTodayLog._id);
 					}}
 					onCancel={() => setConfirmOpen(false)}
 				/>

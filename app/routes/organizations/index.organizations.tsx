@@ -13,7 +13,7 @@ import {
 import { Input } from '~/components/ui/input';
 import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
-import type { Organization } from '~/types/api';
+import type { Organization } from '~/types';
 
 export function meta() {
 	return [

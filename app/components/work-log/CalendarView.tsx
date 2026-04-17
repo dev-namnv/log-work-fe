@@ -1,5 +1,5 @@
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 // ---------------------------------------------------------------------------
 // Helpers

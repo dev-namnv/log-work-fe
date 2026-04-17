@@ -3,7 +3,7 @@ import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import { useOrgReportQuery } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { MemberWorkLog } from '~/types/api';
+import type { MemberWorkLog } from '~/types';
 
 export function meta() {
 	return [

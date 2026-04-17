@@ -10,7 +10,7 @@ import {
 	WORK_LOG_KEYS,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types/api';
+import type { WorkLog } from '~/types';
 
 export function meta() {
 	return [
