@@ -128,7 +128,7 @@ export default function WorkLogDetailPage() {
 		updateMutation.mutate(
 			{
 				checkIn: toISO(date, checkInTime),
-				checkOut: toISO(date, checkOutTime),
+				checkOut: checkOutTime ? toISO(date, checkOutTime) : undefined,
 				note: (data.get('note') as string) || undefined,
 				skipLunchBreak: skipLunchBreak ?? false,
 			},
@@ -210,6 +210,7 @@ export default function WorkLogDetailPage() {
 									id="checkOutTime"
 									name="checkOutTime"
 									type="time"
+									required={false}
 									defaultValue={toTimeString(log.checkOut)}
 								/>
 							</div>

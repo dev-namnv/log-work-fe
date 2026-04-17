@@ -174,6 +174,7 @@ export default function NewWorkLogPage() {
 									name="checkOutTime"
 									type="time"
 									value={checkOutTime}
+									required={false}
 									onChange={(e) => setCheckOutTime(e.target.value)}
 								/>
 							</div>
