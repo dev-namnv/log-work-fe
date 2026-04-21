@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import type {
 	ChangePasswordDto,
 	LoginDto,
@@ -13,13 +13,15 @@ import { removeToken, setToken } from '~/lib/token';
 
 export function useLoginMutation() {
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const redirect = searchParams.get('redirect') || '/';
 	const { setUser } = useAuth();
 	return useMutation({
 		mutationFn: (dto: LoginDto) => AuthService.login(dto),
 		onSuccess: (res) => {
 			setToken(res.accessToken);
 			setUser(res.account);
-			navigate('/');
+			navigate(decodeURIComponent(redirect), { replace: true });
 		},
 		onError: (err: Error, variables: LoginDto) => {
 			if (

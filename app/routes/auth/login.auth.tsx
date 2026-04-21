@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
@@ -27,9 +27,6 @@ export function meta({}: Route.MetaArgs) {
 
 export default function LoginPage() {
 	const { mutate: login, isPending, error: mutationError } = useLoginMutation();
-	const navigate = useNavigate();
-	const [searchParams] = useSearchParams();
-	const redirect = searchParams.get('redirect') || '/';
 
 	// Ẩn lỗi khi trường hợp OTP redirect — sẽ navigate thay vì hiển thị
 	const isOtpCase =
@@ -47,18 +44,10 @@ export default function LoginPage() {
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const data = new FormData(e.currentTarget);
-		login(
-			{
-				email: data.get('email') as string,
-				password: data.get('password') as string,
-			},
-			{
-				onSuccess() {
-					// Redirect sau khi login thành công
-					navigate(decodeURIComponent(redirect), { replace: true });
-				},
-			},
-		);
+		login({
+			email: data.get('email') as string,
+			password: data.get('password') as string,
+		});
 	}
 
 	return (
