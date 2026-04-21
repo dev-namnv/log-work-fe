@@ -55,7 +55,7 @@ export default function LoginPage() {
 			{
 				onSuccess() {
 					// Redirect sau khi login thành công
-					navigate(redirect);
+					navigate(decodeURIComponent(redirect), { replace: true });
 				},
 			},
 		);
