@@ -71,6 +71,20 @@ export interface MessageResponse {
 	message: string;
 }
 
+export interface QrSessionResponse {
+	sessionId: string;
+	qrUrl: string;
+	expiresAt: string;
+}
+
+export type QrSessionStatus = 'pending' | 'confirmed' | 'expired';
+
+export interface QrStatusResponse {
+	status: QrSessionStatus;
+	/** JWT token của thiết bị — chỉ có khi status === "confirmed" */
+	token?: string;
+}
+
 // ---------------------------------------------------------------------------
 // AuthService — all methods static
 // ---------------------------------------------------------------------------
@@ -182,5 +196,35 @@ export class AuthService {
 	 */
 	static resendOtp(dto: ResendOtpDto): Promise<MessageResponse> {
 		return http.post<MessageResponse>('/auth/resend-otp', { json: dto });
+	}
+
+	// ---------------------------------------------------------------------------
+	// QR Login — Thiết bị đồng hồ / Mobile confirm
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Tạo phiên QR để hiển thị mã QR trên thiết bị đồng hồ.
+	 * Không yêu cầu xác thực.
+	 */
+	static generateQrSession(): Promise<QrSessionResponse> {
+		return http.post<QrSessionResponse>('/auth/qr/generate');
+	}
+
+	/**
+	 * Polling trạng thái phiên QR từ thiết bị.
+	 * Không yêu cầu xác thực.
+	 */
+	static getQrStatus(sessionId: string): Promise<QrStatusResponse> {
+		return http.get<QrStatusResponse>(`/auth/qr/status/${sessionId}`);
+	}
+
+	/**
+	 * Nhân viên xác nhận phiên QR sau khi quét mã từ thiết bị đồng hồ.
+	 * Yêu cầu JWT của nhân viên đã đăng nhập.
+	 */
+	static confirmQrSession(sessionId: string): Promise<MessageResponse> {
+		return http.post<MessageResponse>('/auth/qr/confirm', {
+			json: { sessionId },
+		});
 	}
 }

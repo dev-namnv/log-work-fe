@@ -59,4 +59,7 @@ export default [
 
 	// Public share view — no layout, no auth required
 	route('share/:token', 'routes/share/$token.share.tsx'),
+
+	// QR Login — nhân viên xác nhận phiên đăng nhập thiết bị đồng hồ
+	route('qr-login', 'routes/qr-login.tsx'),
 ] satisfies RouteConfig;
