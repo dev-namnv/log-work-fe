@@ -113,7 +113,7 @@ async function request<T>(
 		!['/auth/login', '/auth/logout'].includes(window.location.pathname)
 	) {
 		// Optional: auto-logout on 401 Unauthorized
-		window.location.href = '/auth/logout';
+		window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
 	}
 
 	return parseResponse<T>(res);
