@@ -1,5 +1,5 @@
 import { CheckCircle, Loader2, Monitor, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
@@ -28,14 +28,14 @@ export function meta() {
 	];
 }
 
-type ConfirmState = 'idle' | 'loading' | 'success' | 'error';
-
 export default function QrLoginPage() {
 	const [searchParams] = useSearchParams();
 	const sessionId = searchParams.get('session');
 	const { user, loading } = useAuth();
 
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
+	const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+	const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const {
 		mutateAsync: getQrSessionStatus,
@@ -49,6 +49,29 @@ export default function QrLoginPage() {
 		if (!sessionId) return;
 		getQrSessionStatus(sessionId);
 	}, [getQrSessionStatus, sessionId]);
+
+	useEffect(() => {
+		if (!qrSessionStatus?.expiresAt) return;
+
+		function tick() {
+			const diff = Math.max(
+				0,
+				Math.floor(
+					(new Date(qrSessionStatus!.expiresAt).getTime() - Date.now()) / 1000,
+				),
+			);
+			setRemainingSeconds(diff);
+			if (diff <= 0 && countdownRef.current) {
+				clearInterval(countdownRef.current);
+			}
+		}
+
+		tick();
+		countdownRef.current = setInterval(tick, 1000);
+		return () => {
+			if (countdownRef.current) clearInterval(countdownRef.current);
+		};
+	}, [qrSessionStatus?.expiresAt]);
 
 	async function handleConfirm() {
 		if (!sessionId) return;
@@ -208,6 +231,15 @@ export default function QrLoginPage() {
 				</CardContent>
 
 				<CardFooter className="flex flex-col gap-2">
+					{remainingSeconds !== null && (
+						<p className="text-xs text-muted-foreground text-center">
+							Phiên hết hạn sau{' '}
+							<span className="font-mono font-medium text-foreground">
+								{String(Math.floor(remainingSeconds / 60)).padStart(2, '0')}:
+								{String(remainingSeconds % 60).padStart(2, '0')}
+							</span>
+						</p>
+					)}
 					<Button
 						className="w-full"
 						onClick={handleConfirm}
