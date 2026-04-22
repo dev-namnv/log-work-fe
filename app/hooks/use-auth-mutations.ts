@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import type {
 	ChangePasswordDto,
 	LoginDto,
@@ -13,15 +13,13 @@ import { removeToken, setToken } from '~/lib/token';
 
 export function useLoginMutation() {
 	const navigate = useNavigate();
-	const [searchParams] = useSearchParams();
-	const redirect = searchParams.get('redirect') || '/';
 	const { setUser } = useAuth();
 	return useMutation({
 		mutationFn: (dto: LoginDto) => AuthService.login(dto),
 		onSuccess: (res) => {
 			setToken(res.accessToken);
 			setUser(res.account);
-			navigate(decodeURIComponent(redirect), { replace: true });
+			// AuthLayout sẽ tự redirect theo ?redirect= param
 		},
 		onError: (err: Error, variables: LoginDto) => {
 			if (
@@ -75,5 +73,17 @@ export function useUpdateProfileMutation() {
 export function useChangePasswordMutation() {
 	return useMutation({
 		mutationFn: (dto: ChangePasswordDto) => AuthService.changePassword(dto),
+	});
+}
+
+export function useConfirmQrSessionMutation() {
+	return useMutation({
+		mutationFn: (sessionId: string) => AuthService.confirmQrSession(sessionId),
+	});
+}
+
+export function useGetQrSessionStatusMutation() {
+	return useMutation({
+		mutationFn: (sessionId: string) => AuthService.getQrStatus(sessionId),
 	});
 }

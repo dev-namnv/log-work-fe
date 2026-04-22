@@ -1,7 +1,6 @@
 import { CheckCircle, Loader2, Monitor, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { AuthService } from '~/apis/auth.service';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
@@ -14,6 +13,10 @@ import {
 	CardTitle,
 } from '~/components/ui/card';
 import { useAuth } from '~/contexts/auth-context';
+import {
+	useConfirmQrSessionMutation,
+	useGetQrSessionStatusMutation,
+} from '~/hooks/use-auth-mutations';
 
 export function meta() {
 	return [
@@ -32,28 +35,41 @@ export default function QrLoginPage() {
 	const sessionId = searchParams.get('session');
 	const { user, loading } = useAuth();
 
-	const [state, setState] = useState<ConfirmState>('idle');
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+	const {
+		mutateAsync: getQrSessionStatus,
+		data: qrSessionStatus,
+		isPending: isGettingStatus,
+	} = useGetQrSessionStatusMutation();
+	const { mutate: confirmQrSession, isPending: isConfirming } =
+		useConfirmQrSessionMutation();
+
+	useEffect(() => {
+		if (!sessionId) return;
+		getQrSessionStatus(sessionId);
+	}, [getQrSessionStatus, sessionId]);
 
 	async function handleConfirm() {
 		if (!sessionId) return;
-		setState('loading');
-		setErrorMsg(null);
-		try {
-			await AuthService.confirmQrSession(sessionId);
-			setState('success');
-		} catch (err) {
-			setState('error');
-			setErrorMsg(
-				err instanceof ApiException
-					? err.message
-					: 'Đã xảy ra lỗi, vui lòng thử lại.',
-			);
-		}
+		confirmQrSession(sessionId, {
+			onSuccess: () => {
+				setErrorMsg(null);
+				// Sau khi xác nhận thành công, load lại trạng thái để hiển thị "confirmed"
+				getQrSessionStatus(sessionId);
+			},
+			onError: (err) => {
+				if (err instanceof ApiException) {
+					setErrorMsg(err.message || 'Xác nhận thất bại. Vui lòng thử lại.');
+				} else {
+					setErrorMsg('Xác nhận thất bại. Vui lòng thử lại.');
+				}
+			},
+		});
 	}
 
-	// Đang tải thông tin người dùng
-	if (loading) {
+	// Đang tải thông tin người dùng hoặc trạng thái phiên
+	if (loading || isGettingStatus) {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-background">
 				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -74,6 +90,31 @@ export default function QrLoginPage() {
 						<CardDescription>
 							Mã phiên QR không được tìm thấy trong URL. Vui lòng quét lại mã QR
 							trên thiết bị đồng hồ.
+						</CardDescription>
+					</CardHeader>
+					<CardFooter>
+						<Button asChild className="w-full">
+							<Link to="/">Về trang chủ</Link>
+						</Button>
+					</CardFooter>
+				</Card>
+			</div>
+		);
+	}
+
+	// Session đã hết hạn
+	if (qrSessionStatus?.status === 'expired') {
+		return (
+			<div className="min-h-screen flex items-center justify-center bg-background p-4">
+				<Card className="w-full max-w-sm">
+					<CardHeader className="text-center">
+						<div className="flex justify-center mb-2">
+							<XCircle className="h-12 w-12 text-destructive" />
+						</div>
+						<CardTitle>Phiên đăng nhập đã hết hạn</CardTitle>
+						<CardDescription>
+							Phiên đăng nhập QR đã hết hạn. Vui lòng quét lại mã QR trên thiết
+							bị đồng hồ.
 						</CardDescription>
 					</CardHeader>
 					<CardFooter>
@@ -113,7 +154,7 @@ export default function QrLoginPage() {
 	}
 
 	// Đã xác nhận thành công
-	if (state === 'success') {
+	if (qrSessionStatus?.status === 'confirmed') {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-background p-4">
 				<Card className="w-full max-w-sm">
@@ -146,8 +187,7 @@ export default function QrLoginPage() {
 					</div>
 					<CardTitle>Xác nhận đăng nhập thiết bị</CardTitle>
 					<CardDescription>
-						Bạn đang xác nhận đăng nhập cho một thiết bị đồng hồ chấm công với
-						tài khoản{' '}
+						Bạn đang xác nhận đăng nhập cho một thiết bị chấm công với tài khoản{' '}
 						<span className="font-medium text-foreground">
 							{user.firstName} {user.lastName}
 						</span>
@@ -156,14 +196,14 @@ export default function QrLoginPage() {
 				</CardHeader>
 
 				<CardContent>
-					{state === 'error' && errorMsg && (
+					{errorMsg && (
 						<Alert variant="destructive">
 							<AlertDescription>{errorMsg}</AlertDescription>
 						</Alert>
 					)}
 					<p className="text-sm text-muted-foreground text-center">
-						Chỉ xác nhận nếu bạn đang đứng trước thiết bị đồng hồ và muốn đăng
-						nhập vào thiết bị đó.
+						Chỉ xác nhận nếu bạn đang đứng trước thiết bị và muốn đăng nhập vào
+						thiết bị đó.
 					</p>
 				</CardContent>
 
@@ -171,10 +211,8 @@ export default function QrLoginPage() {
 					<Button
 						className="w-full"
 						onClick={handleConfirm}
-						disabled={state === 'loading'}>
-						{state === 'loading' && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
+						disabled={isConfirming}>
+						{isConfirming && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 						Xác nhận đăng nhập thiết bị
 					</Button>
 					<Button asChild variant="ghost" className="w-full">

@@ -81,6 +81,7 @@ export type QrSessionStatus = 'pending' | 'confirmed' | 'expired';
 
 export interface QrStatusResponse {
 	status: QrSessionStatus;
+	expiresAt: string;
 	/** JWT token của thiết bị — chỉ có khi status === "confirmed" */
 	token?: string;
 }

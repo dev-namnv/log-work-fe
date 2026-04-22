@@ -1,12 +1,16 @@
 import { ClipboardCheck } from 'lucide-react';
-import { Link, Navigate, Outlet } from 'react-router';
+import { Link, Navigate, Outlet, useSearchParams } from 'react-router';
 import { useAuth } from '~/contexts/auth-context';
 
 export default function AuthLayout() {
 	const { user, loading } = useAuth();
+	const [searchParams] = useSearchParams();
 
 	if (!loading && user) {
-		return <Navigate to="/" replace />;
+		const redirect = searchParams.get('redirect');
+		return (
+			<Navigate to={redirect ? decodeURIComponent(redirect) : '/'} replace />
+		);
 	}
 
 	return (
