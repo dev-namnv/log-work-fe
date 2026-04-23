@@ -1,5 +1,6 @@
+import { LogOut } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
@@ -78,7 +79,7 @@ export default function ProfilePage() {
 					{user.firstName[0]}
 					{user.lastName[0]}
 				</span>
-				<div>
+				<div className="flex-1">
 					<h1 className="text-2xl font-semibold tracking-tight">
 						{user.firstName} {user.lastName}
 					</h1>
@@ -91,6 +92,12 @@ export default function ProfilePage() {
 						)}
 					</p>
 				</div>
+				<Link
+					to="/auth/logout"
+					className="md:hidden flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors">
+					<LogOut className="h-4 w-4" />
+					Đăng xuất
+				</Link>
 			</div>
 
 			{/* Update profile */}
