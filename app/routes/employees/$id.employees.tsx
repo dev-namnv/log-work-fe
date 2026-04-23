@@ -101,6 +101,7 @@ export default function EmployeeDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const [searchParams] = useSearchParams();
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const now = new Date();
 
 	// orgId có thể truyền qua query string từ trang list
@@ -108,15 +109,21 @@ export default function EmployeeDetailPage() {
 	const [month, setMonth] = useState(now.getMonth() + 1);
 	const [year, setYear] = useState(now.getFullYear());
 
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: authReady },
+	);
 
 	const effectiveOrgId = orgId || orgs?.data[0]?._id || '';
 
-	const { data: report, isLoading } = useOrgReportQuery({
-		organizationId: effectiveOrgId,
-		month,
-		year,
-	});
+	const { data: report, isLoading } = useOrgReportQuery(
+		{
+			organizationId: effectiveOrgId,
+			month,
+			year,
+		},
+		{ enabled: authReady && !!effectiveOrgId },
+	);
 
 	if (!authLoading && !user) return null;
 

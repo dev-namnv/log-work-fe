@@ -64,15 +64,19 @@ function OrganizationCard({ org }: { org: Organization }) {
 
 export default function OrganizationsPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const navigate = useNavigate();
 	const [keyword, setKeyword] = useState('');
 	const [search, setSearch] = useState('');
 
-	const { data, isLoading, error } = useOrganizationsQuery({ keyword: search });
+	const { data, isLoading, error } = useOrganizationsQuery(
+		{ keyword: search },
+		{ enabled: authReady },
+	);
 
 	useEffect(() => {
 		if (!authLoading && !user) {
-			navigate('/auth/login?next=/organizations', { replace: true });
+			navigate('/auth/login?redirect=/organizations', { replace: true });
 		}
 	}, [user, authLoading, navigate]);
 

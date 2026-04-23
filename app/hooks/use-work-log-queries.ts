@@ -23,10 +23,14 @@ export const WORK_LOG_KEYS = {
 		[...WORK_LOG_KEYS.all, 'share-view', token] as const,
 };
 
-export function useWorkLogsQuery(dto: SearchWorkLogDto) {
+export function useWorkLogsQuery(
+	dto: SearchWorkLogDto,
+	options?: { enabled?: boolean },
+) {
 	return useQuery({
 		queryKey: WORK_LOG_KEYS.list(dto),
 		queryFn: () => WorkLogService.search(dto),
+		...options,
 	});
 }
 
@@ -50,11 +54,15 @@ export function useMonthlyReportQuery(
 	});
 }
 
-export function useOrgReportQuery(dto: OrgReportDto) {
+export function useOrgReportQuery(
+	dto: OrgReportDto,
+	options?: { enabled?: boolean },
+) {
 	return useQuery({
 		queryKey: WORK_LOG_KEYS.orgReport(dto),
 		queryFn: () => WorkLogService.getByOrganization(dto),
 		enabled: !!dto.organizationId && !!dto.month && !!dto.year,
+		...options,
 	});
 }
 

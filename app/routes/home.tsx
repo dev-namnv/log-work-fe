@@ -152,6 +152,7 @@ function ConfirmReCheckOutModal({
 
 export default function HomePage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
@@ -166,7 +167,7 @@ export default function HomePage() {
 	// Chỉ gọi API nếu đã login
 	const { data: orgs } = useOrganizationsQuery(
 		{ limit: 100 },
-		{ enabled: !!user },
+		{ enabled: authReady },
 	);
 
 	const todayVN = localDateStr(now);
@@ -196,7 +197,7 @@ export default function HomePage() {
 			year: currentYear,
 			organizationId: selectedOrgId || undefined,
 		},
-		{ enabled: !!selectedOrgId },
+		{ enabled: authReady && !!selectedOrgId },
 	);
 
 	// Log hôm nay (so sánh theo ngày VN)

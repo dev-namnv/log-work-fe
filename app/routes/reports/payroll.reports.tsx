@@ -68,24 +68,31 @@ function MemberRow({
 
 export default function PayrollReportPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const now = new Date();
 
 	const [month, setMonth] = useState(now.getMonth() + 1);
 	const [year, setYear] = useState(now.getFullYear());
 	const [orgId, setOrgId] = useState('');
 
-	const { data: orgs, isLoading: orgsLoading } = useOrganizationsQuery({
-		limit: 100,
-	});
+	const { data: orgs, isLoading: orgsLoading } = useOrganizationsQuery(
+		{
+			limit: 100,
+		},
+		{ enabled: authReady },
+	);
 
 	// Tự chọn tổ chức đầu tiên
 	const effectiveOrgId = orgId || orgs?.data[0]?._id || '';
 
-	const { data: report, isLoading: reportLoading } = useOrgReportQuery({
-		organizationId: effectiveOrgId,
-		month,
-		year,
-	});
+	const { data: report, isLoading: reportLoading } = useOrgReportQuery(
+		{
+			organizationId: effectiveOrgId,
+			month,
+			year,
+		},
+		{ enabled: authReady && !!effectiveOrgId },
+	);
 
 	if (!authLoading && !user) return null;
 

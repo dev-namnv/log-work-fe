@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { AuthService } from '~/apis/auth.service';
+import { ApiException } from '~/apis/http';
+import { removeToken } from '~/lib/token';
 import { setUser } from '~/store/auth.slice';
 import { useAppDispatch, useAppSelector } from '~/store/hooks';
 import type { Account } from '~/types';
@@ -12,7 +14,10 @@ export const CURRENT_USER_QUERY_KEY = ['currentUser'] as const;
 async function fetchCurrentUser(): Promise<Account | null> {
 	try {
 		return await AuthService.getProfile();
-	} catch {
+	} catch (error) {
+		if (error instanceof ApiException && error.statusCode === 401) {
+			removeToken();
+		}
 		return null;
 	}
 }
@@ -44,7 +49,7 @@ export function useAuth(): AuthContextValue {
 	const isHydrated = useAppSelector((s) => s.auth.isHydrated);
 
 	// Validate session ngầm ở background — staleTime: Infinity không tự refetch
-	const { data: serverUser } = useQuery({
+	const { data: serverUser, isFetching } = useQuery({
 		queryKey: CURRENT_USER_QUERY_KEY,
 		queryFn: fetchCurrentUser,
 		staleTime: Infinity,
@@ -66,8 +71,8 @@ export function useAuth(): AuthContextValue {
 
 	return {
 		user: reduxUser,
-		// loading chỉ true khi chưa rehydrate từ localStorage lần đầu
-		loading: !isHydrated,
+		// Nếu đang xác thực lại session từ user persisted, tạm giữ loading để tránh redirect sai.
+		loading: !isHydrated || (!!reduxUser && isFetching),
 		setUser: handleSetUser,
 	};
 }

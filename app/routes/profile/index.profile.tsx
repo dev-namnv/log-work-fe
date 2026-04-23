@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
 	useEffect(() => {
 		if (!loading && !user) {
-			navigate('/auth/login?next=/profile', { replace: true });
+			navigate('/auth/login?redirect=/profile', { replace: true });
 		}
 	}, [user, loading, navigate]);
 

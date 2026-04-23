@@ -32,8 +32,12 @@ function toISO(date: string, time: string): string {
 
 export default function NewWorkLogPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const mutation = useCreateWorkLogMutation();
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: authReady },
+	);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [checkInTime, setCheckInTime] = useState('08:00');

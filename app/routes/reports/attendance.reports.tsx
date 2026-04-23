@@ -464,6 +464,7 @@ function ShareLinkCard({
 
 export default function AttendanceReportPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const now = new Date();
 
 	const [month, setMonth] = useState(now.getMonth() + 1);
@@ -472,12 +473,18 @@ export default function AttendanceReportPage() {
 	const [shareOpen, setShareOpen] = useState(false);
 	const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
-	const { data: report, isLoading } = useMonthlyReportQuery({
-		month,
-		year,
-		organizationId: orgId || undefined,
-	});
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: authReady },
+	);
+	const { data: report, isLoading } = useMonthlyReportQuery(
+		{
+			month,
+			year,
+			organizationId: orgId || undefined,
+		},
+		{ enabled: authReady },
+	);
 
 	if (!authLoading && !user) return null;
 

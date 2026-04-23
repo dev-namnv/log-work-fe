@@ -47,6 +47,7 @@ function isoToLocalHHmm(iso: string): string {
 
 export default function CheckInPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const queryClient = useQueryClient();
 
 	const [now, setNow] = useState(new Date());
@@ -54,7 +55,10 @@ export default function CheckInPage() {
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: authReady },
+	);
 
 	const today = localDateStr(now);
 	const currentMonth = now.getMonth() + 1;
@@ -78,11 +82,14 @@ export default function CheckInPage() {
 		data: report,
 		isLoading: reportLoading,
 		refetch,
-	} = useMonthlyReportQuery({
-		month: currentMonth,
-		year: currentYear,
-		organizationId: selectedOrgId || undefined,
-	});
+	} = useMonthlyReportQuery(
+		{
+			month: currentMonth,
+			year: currentYear,
+			organizationId: selectedOrgId || undefined,
+		},
+		{ enabled: authReady && !!selectedOrgId },
+	);
 
 	const todayLog: WorkLog | undefined = useMemo(() => {
 		if (!report) return undefined;

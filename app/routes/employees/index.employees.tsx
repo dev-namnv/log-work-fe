@@ -70,6 +70,7 @@ function MemberCard({
 
 export default function EmployeesPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const navigate = useNavigate();
 	const now = new Date();
 
@@ -77,7 +78,10 @@ export default function EmployeesPage() {
 	const [month, setMonth] = useState(now.getMonth() + 1);
 	const [year, setYear] = useState(now.getFullYear());
 
-	const { data: orgs } = useOrganizationsQuery({ limit: 100 });
+	const { data: orgs } = useOrganizationsQuery(
+		{ limit: 100 },
+		{ enabled: authReady },
+	);
 
 	// Tự chọn tổ chức đầu tiên
 	useEffect(() => {
@@ -88,15 +92,18 @@ export default function EmployeesPage() {
 
 	const effectiveOrgId = orgId || orgs?.data[0]?._id || '';
 
-	const { data: report, isLoading } = useOrgReportQuery({
-		organizationId: effectiveOrgId,
-		month,
-		year,
-	});
+	const { data: report, isLoading } = useOrgReportQuery(
+		{
+			organizationId: effectiveOrgId,
+			month,
+			year,
+		},
+		{ enabled: authReady && !!effectiveOrgId },
+	);
 
 	useEffect(() => {
 		if (!authLoading && !user) {
-			navigate('/auth/login?next=/employees', { replace: true });
+			navigate('/auth/login?redirect=/employees', { replace: true });
 		}
 	}, [user, authLoading, navigate]);
 

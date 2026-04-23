@@ -68,6 +68,7 @@ function WorkLogRow({ log }: { log: WorkLog }) {
 
 export default function WorkLogsPage() {
 	const { user, loading: authLoading } = useAuth();
+	const authReady = !authLoading && !!user;
 	const navigate = useNavigate();
 
 	const now = new Date();
@@ -80,22 +81,28 @@ export default function WorkLogsPage() {
 		data: logs,
 		isLoading: logsLoading,
 		error: logsError,
-	} = useWorkLogsQuery({
-		keyword: search,
-		limit: 50,
-		month,
-		year,
-		page: 1,
-	});
+	} = useWorkLogsQuery(
+		{
+			keyword: search,
+			limit: 50,
+			month,
+			year,
+			page: 1,
+		},
+		{ enabled: authReady },
+	);
 
-	const { data: report, isLoading: reportLoading } = useMonthlyReportQuery({
-		month,
-		year,
-	});
+	const { data: report, isLoading: reportLoading } = useMonthlyReportQuery(
+		{
+			month,
+			year,
+		},
+		{ enabled: authReady },
+	);
 
 	useEffect(() => {
 		if (!authLoading && !user) {
-			navigate('/auth/login?next=/work-logs', { replace: true });
+			navigate('/auth/login?redirect=/work-logs', { replace: true });
 		}
 	}, [user, authLoading, navigate]);
 
