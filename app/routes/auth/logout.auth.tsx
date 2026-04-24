@@ -1,33 +1,32 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { AuthService } from '~/apis/auth.service';
+import { useAuth } from '~/contexts/auth-context';
 import { removeToken } from '~/lib/token';
-import { store } from '~/store';
-import { setUser } from '~/store/auth.slice';
 
 export default function LogoutPage() {
 	const navigate = useNavigate();
+	const { setUser } = useAuth();
 
-	useEffect(() => {
-		const performLogout = async () => {
-			try {
-				// Gọi API logout
-				await AuthService.logout();
-			} catch (err) {
-				// Nếu API error, vẫn logout client-side
-				console.error('Logout error:', err);
-			}
-
+	const performLogout = async () => {
+		try {
+			// Gọi API logout
+			await AuthService.logout();
 			// Clear token và Redux state
 			removeToken();
-			store.dispatch(setUser(null));
+			setUser(null);
 
 			// Redirect về login
 			navigate('/auth/login', { replace: true });
-		};
+		} catch (err) {
+			// Nếu API error, vẫn logout client-side
+			console.error('Logout error:', err);
+		}
+	};
 
-		performLogout();
-	}, [navigate]);
+	useEffect(() => {
+		setTimeout(performLogout, 500);
+	}, []);
 
 	return (
 		<div className="flex h-screen items-center justify-center">

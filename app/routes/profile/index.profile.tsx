@@ -84,7 +84,6 @@ export default function ProfilePage() {
 						{user.firstName} {user.lastName}
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						{ROLE_LABEL[user.role] ?? user.role} ·{' '}
 						{user.isVerified ? (
 							<span className="text-green-600">Đã xác thực</span>
 						) : (
@@ -96,7 +95,6 @@ export default function ProfilePage() {
 					to="/auth/logout"
 					className="md:hidden flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors">
 					<LogOut className="h-4 w-4" />
-					Đăng xuất
 				</Link>
 			</div>
 

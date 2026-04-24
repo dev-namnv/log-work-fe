@@ -53,9 +53,11 @@ export default [
 			route('reset-password', 'routes/auth/reset-password.auth.tsx'),
 			route('verify-otp', 'routes/auth/verify-otp.auth.tsx'),
 			route('verify-email/:token', 'routes/auth/$token.verify-email.auth.tsx'),
-			route('logout', 'routes/auth/logout.auth.tsx'),
 		]),
 	]),
+
+	// Logout — không dùng AuthLayout vì AuthLayout redirect user đã đăng nhập
+	route('auth/logout', 'routes/auth/logout.auth.tsx'),
 
 	// Public share view — no layout, no auth required
 	route('share/:token', 'routes/share/$token.share.tsx'),
