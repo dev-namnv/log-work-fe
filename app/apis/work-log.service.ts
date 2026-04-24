@@ -17,7 +17,7 @@ import type {
 export interface CreateWorkLogDto {
 	organizationId: string;
 	checkIn: string; // ISO 8601
-	checkOut: string | null; // ISO 8601, null khi chỉ check-in
+	checkOut?: string; // ISO 8601, null khi chỉ check-in
 	note?: string;
 	/** Bỏ qua khấu trừ nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi) */
 	skipLunchBreak?: boolean;

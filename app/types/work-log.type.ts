@@ -4,7 +4,7 @@ import type { Organization, WorkSchedule } from './organization.type';
 export interface WorkLog {
 	_id: string;
 	account: Account | string;
-	organization: Organization | string;
+	organization: Organization;
 	date: string; // "YYYY-MM-DD"
 	checkIn: string; // ISO 8601
 	checkOut: string | null; // ISO 8601, null nếu chưa check-out
