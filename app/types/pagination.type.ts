@@ -2,7 +2,7 @@ interface Search {
 	field: string;
 	value: string | number | boolean;
 }
-enum SortOrder {
+export enum SortOrder {
 	ASC = 'asc',
 	DESC = 'desc',
 }

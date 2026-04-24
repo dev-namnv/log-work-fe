@@ -10,7 +10,7 @@ import {
 	useMonthlyReportQuery,
 	useWorkLogsQuery,
 } from '~/hooks/use-work-log-queries';
-import type { WorkLog } from '~/types';
+import { SortOrder, type WorkLog } from '~/types';
 
 export function meta() {
 	return [
@@ -88,6 +88,7 @@ export default function WorkLogsPage() {
 			month,
 			year,
 			page: 1,
+			sort: { field: 'date', order: SortOrder.DESC },
 		},
 		{ enabled: authReady },
 	);
