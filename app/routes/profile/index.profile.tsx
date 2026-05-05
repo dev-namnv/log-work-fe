@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react';
+import { Github, LogOut } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
@@ -225,6 +225,27 @@ export default function ProfilePage() {
 							{changePasswordMutation.isPending ? 'Đang lưu…' : 'Đổi mật khẩu'}
 						</Button>
 					</form>
+				</CardContent>
+			</Card>
+
+			{/* Git Integration */}
+			<Card>
+				<CardHeader>
+					<CardTitle>Tích hợp Git</CardTitle>
+					<CardDescription>
+						Kết nối GitHub / GitLab để tự động ghi chú commit vào nhật ký làm
+						việc.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Button variant="outline" asChild>
+						<Link
+							to="/settings/integrations"
+							className="flex items-center gap-2">
+							<Github className="h-4 w-4" />
+							Quản lý tích hợp Git
+						</Link>
+					</Button>
 				</CardContent>
 			</Card>
 		</div>

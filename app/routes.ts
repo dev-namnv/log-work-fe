@@ -42,6 +42,11 @@ export default [
 			index('routes/employees/index.employees.tsx'),
 			route(':id', 'routes/employees/$id.employees.tsx'),
 		]),
+
+		// Settings
+		...prefix('settings', [
+			route('integrations', 'routes/settings/integrations.settings.tsx'),
+		]),
 	]),
 
 	// Auth routes — wrapped in AuthLayout (no header/footer)
