@@ -15,7 +15,8 @@
 7. [Work Log](#7-work-log)
    - 7.1 [Work Log Share](#71-work-log-share)
 8. [Git Integration](#8-git-integration)
-9. [Telegram](#9-telegram)
+9. [User Ref](#9-user-ref)
+10. [Telegram](#10-telegram)
 
 ---
 
@@ -64,13 +65,13 @@ Test endpoint to verify cookie-based auth is working.
 
 ```json
 {
-  "message": "Auth works with cookie!",
-  "account": {
-    "id": "665f...",
-    "email": "user@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  }
+	"message": "Auth works with cookie!",
+	"account": {
+		"id": "665f...",
+		"email": "user@example.com",
+		"firstName": "John",
+		"lastName": "Doe"
+	}
 }
 ```
 
@@ -86,14 +87,14 @@ Test endpoint that works with or without a logged-in session.
 
 ```json
 {
-  "message": "AuthOptional works!",
-  "isAuthenticated": true,
-  "account": {
-    "id": "665f...",
-    "email": "user@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  }
+	"message": "AuthOptional works!",
+	"isAuthenticated": true,
+	"account": {
+		"id": "665f...",
+		"email": "user@example.com",
+		"firstName": "John",
+		"lastName": "Doe"
+	}
 }
 ```
 
@@ -115,11 +116,11 @@ Register a new account. Sets the `accessToken` cookie on success.
 
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "Secret123",
-  "inviteCode": "abc123"
+	"firstName": "John",
+	"lastName": "Doe",
+	"email": "john.doe@example.com",
+	"password": "Secret123",
+	"inviteCode": "abc123"
 }
 ```
 
@@ -150,8 +151,8 @@ Login with email and password. Sets the `accessToken` cookie on success. Admin a
 
 ```json
 {
-  "email": "john.doe@example.com",
-  "password": "Secret123"
+	"email": "john.doe@example.com",
+	"password": "Secret123"
 }
 ```
 
@@ -182,21 +183,21 @@ Get the currently authenticated user's profile.
 
 ```json
 {
-  "_id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "email": "john.doe@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": null,
-  "avatar": null,
-  "role": "USER",
-  "isVerified": false,
-  "metadata": {
-    "sendMail": true,
-    "telegramChatId": null,
-    "sendTelegram": false
-  },
-  "createdAt": "2026-01-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"email": "john.doe@example.com",
+	"firstName": "John",
+	"lastName": "Doe",
+	"phone": null,
+	"avatar": null,
+	"role": "USER",
+	"isVerified": false,
+	"metadata": {
+		"sendMail": true,
+		"telegramChatId": null,
+		"sendTelegram": false
+	},
+	"createdAt": "2026-01-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -212,9 +213,9 @@ Change the current user's password.
 
 ```json
 {
-  "password": "OldPassword123",
-  "newPassword": "NewPassword456",
-  "newPasswordConfirm": "NewPassword456"
+	"password": "OldPassword123",
+	"newPassword": "NewPassword456",
+	"newPasswordConfirm": "NewPassword456"
 }
 ```
 
@@ -242,10 +243,10 @@ Update the authenticated user's profile.
 
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "languages": ["en", "vi"]
+	"firstName": "John",
+	"lastName": "Doe",
+	"email": "john.doe@example.com",
+	"languages": ["en", "vi"]
 }
 ```
 
@@ -270,8 +271,8 @@ Update user metadata settings (notification preferences, etc.).
 
 ```json
 {
-  "sendMail": true,
-  "sendTelegram": false
+	"sendMail": true,
+	"sendTelegram": false
 }
 ```
 
@@ -289,7 +290,7 @@ Set Telegram Chat ID to receive real-time notifications. Send `null` or empty st
 
 ```json
 {
-  "telegramChatId": "123456789"
+	"telegramChatId": "123456789"
 }
 ```
 
@@ -311,7 +312,7 @@ Send a password reset email.
 
 ```json
 {
-  "email": "john.doe@example.com"
+	"email": "john.doe@example.com"
 }
 ```
 
@@ -333,8 +334,8 @@ Reset the password using the key received in the reset email.
 
 ```json
 {
-  "key": "reset-token-from-email",
-  "password": "NewPassword456"
+	"key": "reset-token-from-email",
+	"password": "NewPassword456"
 }
 ```
 
@@ -409,8 +410,8 @@ Verify OTP code for ADMIN two-factor login. Sets the `accessToken` cookie on suc
 
 ```json
 {
-  "email": "admin@example.com",
-  "otp": "123456"
+	"email": "admin@example.com",
+	"otp": "123456"
 }
 ```
 
@@ -439,7 +440,7 @@ Resend OTP for ADMIN login.
 
 ```json
 {
-  "email": "admin@example.com"
+	"email": "admin@example.com"
 }
 ```
 
@@ -481,9 +482,9 @@ Search and paginate all accounts.
 
 ```json
 {
-  "keyword": "john",
-  "page": 1,
-  "limit": 20
+	"keyword": "john",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -559,17 +560,17 @@ Get all unread notices for the current user.
 
 ```json
 [
-  {
-    "_id": "665f...",
-    "account": "665f...",
-    "type": "Work Log",
-    "message": "<p>Your work log for <b>March 2026</b> has been submitted.</p>",
-    "viewed": false,
-    "variant": "success",
-    "link": null,
-    "createdAt": "2026-03-23T09:00:00.000Z",
-    "updatedAt": "2026-03-23T09:00:00.000Z"
-  }
+	{
+		"_id": "665f...",
+		"account": "665f...",
+		"type": "Work Log",
+		"message": "<p>Your work log for <b>March 2026</b> has been submitted.</p>",
+		"viewed": false,
+		"variant": "success",
+		"link": null,
+		"createdAt": "2026-03-23T09:00:00.000Z",
+		"updatedAt": "2026-03-23T09:00:00.000Z"
+	}
 ]
 ```
 
@@ -619,10 +620,10 @@ Broadcast a notice to every user in the system.
 
 ```json
 {
-  "type": "Application",
-  "variant": "success",
-  "message": "<p>System maintenance scheduled for Sunday.</p>",
-  "link": "https://example.com"
+	"type": "Application",
+	"variant": "success",
+	"message": "<p>System maintenance scheduled for Sunday.</p>",
+	"link": "https://example.com"
 }
 ```
 
@@ -651,11 +652,11 @@ Send a notice to a specific user.
 
 ```json
 {
-  "id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "type": "Application",
-  "variant": "warning",
-  "message": "<p>Your account will be suspended.</p>",
-  "link": null
+	"id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"type": "Application",
+	"variant": "warning",
+	"message": "<p>Your account will be suspended.</p>",
+	"link": null
 }
 ```
 
@@ -681,11 +682,11 @@ Send a notice to multiple specific users.
 
 ```json
 {
-  "ids": ["665f...", "666a..."],
-  "type": "Application",
-  "variant": "default",
-  "message": "<p>Reminder: submit your work logs.</p>",
-  "link": null
+	"ids": ["665f...", "666a..."],
+	"type": "Application",
+	"variant": "default",
+	"message": "<p>Reminder: submit your work logs.</p>",
+	"link": null
 }
 ```
 
@@ -721,13 +722,13 @@ Create a new organization. The creator becomes the `owner`.
 
 ```json
 {
-  "name": "Acme Corp",
-  "description": "Main office",
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  }
+	"name": "Acme Corp",
+	"description": "Main office",
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -749,20 +750,20 @@ Create a new organization. The creator becomes the `owner`.
 
 ```json
 {
-  "_id": "665f...",
-  "name": "Acme Corp",
-  "description": "Main office",
-  "avatar": null,
-  "owner": "665f1a2b3c4d5e6f7a8b9c0d",
-  "members": [],
-  "isActive": true,
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  },
-  "createdAt": "2026-03-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f...",
+	"name": "Acme Corp",
+	"description": "Main office",
+	"avatar": null,
+	"owner": "665f1a2b3c4d5e6f7a8b9c0d",
+	"members": [],
+	"isActive": true,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"createdAt": "2026-03-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -778,9 +779,9 @@ Search organizations where the current user is owner or member.
 
 ```json
 {
-  "keyword": "acme",
-  "page": 1,
-  "limit": 20
+	"keyword": "acme",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -836,14 +837,14 @@ Update organization info. **Owner only.**
 
 ```json
 {
-  "name": "Acme Corp Updated",
-  "description": "New description",
-  "isActive": true,
-  "workSchedule": {
-    "workStartTime": "09:00",
-    "workEndTime": "18:00",
-    "lunchBreakMinutes": 60
-  }
+	"name": "Acme Corp Updated",
+	"description": "New description",
+	"isActive": true,
+	"workSchedule": {
+		"workStartTime": "09:00",
+		"workEndTime": "18:00",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -887,7 +888,7 @@ Add a member to the organization. **Owner only.**
 
 ```json
 {
-  "memberId": "665f1a2b3c4d5e6f7a8b9c0d"
+	"memberId": "665f1a2b3c4d5e6f7a8b9c0d"
 }
 ```
 
@@ -915,7 +916,7 @@ Remove a member from the organization. **Owner only.**
 
 ```json
 {
-  "memberId": "665f1a2b3c4d5e6f7a8b9c0d"
+	"memberId": "665f1a2b3c4d5e6f7a8b9c0d"
 }
 ```
 
@@ -947,11 +948,11 @@ Example: `08:00 → 17:30` minus `60 min` = **8.5 h/day**
 
 ```json
 {
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  }
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	}
 }
 ```
 
@@ -987,10 +988,10 @@ Create a work log entry for the current day.
 
 ```json
 {
-  "organizationId": "665f...",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "note": "Normal work day"
+	"organizationId": "665f...",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"note": "Normal work day"
 }
 ```
 
@@ -1005,16 +1006,16 @@ Create a work log entry for the current day.
 
 ```json
 {
-  "_id": "666a...",
-  "account": "665f...",
-  "organization": "665f...",
-  "date": "2026-03-23T00:00:00.000Z",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "hours": 9.5,
-  "note": "Normal work day",
-  "createdAt": "2026-03-23T17:35:00.000Z",
-  "updatedAt": "2026-03-23T17:35:00.000Z"
+	"_id": "666a...",
+	"account": "665f...",
+	"organization": "665f...",
+	"date": "2026-03-23T00:00:00.000Z",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"hours": 9.5,
+	"note": "Normal work day",
+	"createdAt": "2026-03-23T17:35:00.000Z",
+	"updatedAt": "2026-03-23T17:35:00.000Z"
 }
 ```
 
@@ -1038,9 +1039,9 @@ Search/paginate work log entries for the current user.
 
 ```json
 {
-  "keyword": "",
-  "page": 1,
-  "limit": 20
+	"keyword": "",
+	"page": 1,
+	"limit": 20
 }
 ```
 
@@ -1084,35 +1085,35 @@ Get the monthly work summary for the current user. Optionally filter by organiza
 
 ```json
 {
-  "month": 3,
-  "year": 2026,
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  },
-  "standardHoursPerDay": 8.5,
-  "standardWorkDays": 21,
-  "totalStandardHours": 178.5,
-  "totalHours": 165.0,
-  "loggedDays": 20,
-  "overtimeHours": 0,
-  "missingHours": 13.5,
-  "attendanceRate": 92.44,
-  "logs": [
-    {
-      "_id": "666a...",
-      "account": "665f...",
-      "organization": "665f...",
-      "date": "2026-03-03T00:00:00.000Z",
-      "checkIn": "2026-03-03T08:00:00.000Z",
-      "checkOut": "2026-03-03T17:30:00.000Z",
-      "hours": 9.5,
-      "note": null,
-      "createdAt": "2026-03-03T17:35:00.000Z",
-      "updatedAt": "2026-03-03T17:35:00.000Z"
-    }
-  ]
+	"month": 3,
+	"year": 2026,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"standardHoursPerDay": 8.5,
+	"standardWorkDays": 21,
+	"totalStandardHours": 178.5,
+	"totalHours": 165.0,
+	"loggedDays": 20,
+	"overtimeHours": 0,
+	"missingHours": 13.5,
+	"attendanceRate": 92.44,
+	"logs": [
+		{
+			"_id": "666a...",
+			"account": "665f...",
+			"organization": "665f...",
+			"date": "2026-03-03T00:00:00.000Z",
+			"checkIn": "2026-03-03T08:00:00.000Z",
+			"checkOut": "2026-03-03T17:30:00.000Z",
+			"hours": 9.5,
+			"note": null,
+			"createdAt": "2026-03-03T17:35:00.000Z",
+			"updatedAt": "2026-03-03T17:35:00.000Z"
+		}
+	]
 }
 ```
 
@@ -1143,9 +1144,9 @@ Get per-member work log analytics for a given organization, month, and year.
 
 ```json
 {
-  "organizationId": "665f...",
-  "month": 3,
-  "year": 2026
+	"organizationId": "665f...",
+	"month": 3,
+	"year": 2026
 }
 ```
 
@@ -1227,9 +1228,9 @@ Update a work log entry. Hours are automatically recomputed from the updated `ch
 
 ```json
 {
-  "checkIn": "2026-03-23T08:30:00.000Z",
-  "checkOut": "2026-03-23T18:00:00.000Z",
-  "note": "Started late"
+	"checkIn": "2026-03-23T08:30:00.000Z",
+	"checkOut": "2026-03-23T18:00:00.000Z",
+	"note": "Started late"
 }
 ```
 
@@ -1279,11 +1280,11 @@ Tạo một link chia sẻ báo cáo công việc theo tháng.
 
 ```json
 {
-  "month": 3,
-  "year": 2026,
-  "organizationId": "665f...",
-  "label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
-  "expiresAt": "2026-04-30T23:59:59.000Z"
+	"month": 3,
+	"year": 2026,
+	"organizationId": "665f...",
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z"
 }
 ```
 
@@ -1299,17 +1300,17 @@ Tạo một link chia sẻ báo cáo công việc theo tháng.
 
 ```json
 {
-  "_id": "667c...",
-  "token": "a3f8b2e1c9d047...",
-  "account": "665f...",
-  "organization": "665f...",
-  "month": 3,
-  "year": 2026,
-  "label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
-  "expiresAt": "2026-04-30T23:59:59.000Z",
-  "isActive": true,
-  "createdAt": "2026-03-24T08:00:00.000Z",
-  "updatedAt": "2026-03-24T08:00:00.000Z"
+	"_id": "667c...",
+	"token": "a3f8b2e1c9d047...",
+	"account": "665f...",
+	"organization": "665f...",
+	"month": 3,
+	"year": 2026,
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z",
+	"isActive": true,
+	"createdAt": "2026-03-24T08:00:00.000Z",
+	"updatedAt": "2026-03-24T08:00:00.000Z"
 }
 ```
 
@@ -1327,19 +1328,19 @@ Lấy danh sách tất cả link chia sẻ của người dùng hiện tại.
 
 ```json
 [
-  {
-    "_id": "667c...",
-    "token": "a3f8b2e1c9d047...",
-    "account": "665f...",
-    "organization": { "_id": "665f...", "name": "Acme Corp" },
-    "month": 3,
-    "year": 2026,
-    "label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
-    "expiresAt": "2026-04-30T23:59:59.000Z",
-    "isActive": true,
-    "createdAt": "2026-03-24T08:00:00.000Z",
-    "updatedAt": "2026-03-24T08:00:00.000Z"
-  }
+	{
+		"_id": "667c...",
+		"token": "a3f8b2e1c9d047...",
+		"account": "665f...",
+		"organization": { "_id": "665f...", "name": "Acme Corp" },
+		"month": 3,
+		"year": 2026,
+		"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+		"expiresAt": "2026-04-30T23:59:59.000Z",
+		"isActive": true,
+		"createdAt": "2026-03-24T08:00:00.000Z",
+		"updatedAt": "2026-03-24T08:00:00.000Z"
+	}
 ]
 ```
 
@@ -1381,60 +1382,60 @@ Xem báo cáo công việc qua link chia sẻ. **Không yêu cầu đăng nhập
 
 ```json
 {
-  "share": {
-    "_id": "667c...",
-    "token": "a3f8b2e1c9d047...",
-    "label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
-    "month": 3,
-    "year": 2026,
-    "expiresAt": "2026-04-30T23:59:59.000Z",
-    "createdAt": "2026-03-24T08:00:00.000Z"
-  },
-  "account": {
-    "_id": "665f...",
-    "firstName": "Nguyễn Văn",
-    "lastName": "A",
-    "email": "nguyenvana@example.com",
-    "avatar": null
-  },
-  "organization": {
-    "_id": "665f...",
-    "name": "Acme Corp",
-    "workSchedule": {
-      "workStartTime": "08:00",
-      "workEndTime": "17:30",
-      "lunchBreakMinutes": 60
-    }
-  },
-  "month": 3,
-  "year": 2026,
-  "workSchedule": {
-    "workStartTime": "08:00",
-    "workEndTime": "17:30",
-    "lunchBreakMinutes": 60
-  },
-  "standardHoursPerDay": 8.5,
-  "standardWorkDays": 21,
-  "totalStandardHours": 178.5,
-  "totalHours": 165.0,
-  "loggedDays": 20,
-  "overtimeHours": 0,
-  "missingHours": 13.5,
-  "attendanceRate": 92.44,
-  "logs": [
-    {
-      "_id": "666a...",
-      "account": "665f...",
-      "organization": "665f...",
-      "date": "2026-03-03T00:00:00.000Z",
-      "checkIn": "2026-03-03T08:00:00.000Z",
-      "checkOut": "2026-03-03T17:30:00.000Z",
-      "hours": 8.5,
-      "note": null,
-      "createdAt": "2026-03-03T17:35:00.000Z",
-      "updatedAt": "2026-03-03T17:35:00.000Z"
-    }
-  ]
+	"share": {
+		"_id": "667c...",
+		"token": "a3f8b2e1c9d047...",
+		"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+		"month": 3,
+		"year": 2026,
+		"expiresAt": "2026-04-30T23:59:59.000Z",
+		"createdAt": "2026-03-24T08:00:00.000Z"
+	},
+	"account": {
+		"_id": "665f...",
+		"firstName": "Nguyễn Văn",
+		"lastName": "A",
+		"email": "nguyenvana@example.com",
+		"avatar": null
+	},
+	"organization": {
+		"_id": "665f...",
+		"name": "Acme Corp",
+		"workSchedule": {
+			"workStartTime": "08:00",
+			"workEndTime": "17:30",
+			"lunchBreakMinutes": 60
+		}
+	},
+	"month": 3,
+	"year": 2026,
+	"workSchedule": {
+		"workStartTime": "08:00",
+		"workEndTime": "17:30",
+		"lunchBreakMinutes": 60
+	},
+	"standardHoursPerDay": 8.5,
+	"standardWorkDays": 21,
+	"totalStandardHours": 178.5,
+	"totalHours": 165.0,
+	"loggedDays": 20,
+	"overtimeHours": 0,
+	"missingHours": 13.5,
+	"attendanceRate": 92.44,
+	"logs": [
+		{
+			"_id": "666a...",
+			"account": "665f...",
+			"organization": "665f...",
+			"date": "2026-03-03T00:00:00.000Z",
+			"checkIn": "2026-03-03T08:00:00.000Z",
+			"checkOut": "2026-03-03T17:30:00.000Z",
+			"hours": 8.5,
+			"note": null,
+			"createdAt": "2026-03-03T17:35:00.000Z",
+			"updatedAt": "2026-03-03T17:35:00.000Z"
+		}
+	]
 }
 ```
 
@@ -1488,18 +1489,18 @@ Lấy danh sách tất cả tài khoản Git đã liên kết.
 
 ```json
 [
-  {
-    "_id": "668a...",
-    "account": "665f...",
-    "provider": "GitHub",
-    "providerUserId": "12345678",
-    "username": "johndoe",
-    "displayName": "John Doe",
-    "webhookSecret": "a1b2c3d4e5f6...",
-    "isActive": true,
-    "createdAt": "2026-05-01T00:00:00.000Z",
-    "updatedAt": "2026-05-01T00:00:00.000Z"
-  }
+	{
+		"_id": "668a...",
+		"account": "665f...",
+		"provider": "GitHub",
+		"providerUserId": "12345678",
+		"username": "johndoe",
+		"displayName": "John Doe",
+		"webhookSecret": "a1b2c3d4e5f6...",
+		"isActive": true,
+		"createdAt": "2026-05-01T00:00:00.000Z",
+		"updatedAt": "2026-05-01T00:00:00.000Z"
+	}
 ]
 ```
 
@@ -1517,7 +1518,7 @@ Lấy URL để bắt đầu luồng OAuth với GitHub.
 
 ```json
 {
-  "url": "https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=read%3Auser%2Cuser%3Aemail&state=..."
+	"url": "https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=read%3Auser%2Cuser%3Aemail&state=..."
 }
 ```
 
@@ -1533,7 +1534,7 @@ Lấy URL để bắt đầu luồng OAuth với GitLab.
 
 ```json
 {
-  "url": "https://gitlab.com/oauth/authorize?client_id=...&redirect_uri=...&response_type=code&scope=read_user&state=..."
+	"url": "https://gitlab.com/oauth/authorize?client_id=...&redirect_uri=...&response_type=code&scope=read_user&state=..."
 }
 ```
 
@@ -1673,7 +1674,97 @@ Mỗi commit chỉ được append **một lần** (kiểm tra theo short commit
 
 ---
 
-## 9. Telegram
+## 9. User Ref
+
+Lưu trữ dữ liệu tham chiếu nhẹ theo từng user, dùng để pre-fill form tạo nhanh (ví dụ: tổ chức gần nhất đã tạo WorkLog). Document được upsert tự động khi user thực hiện các thao tác liên quan.
+
+---
+
+### `GET /user-ref`
+
+Lấy dữ liệu tham chiếu của user hiện tại.
+
+> Requires: **login**
+
+**Response** — `200 OK`
+
+```json
+{
+	"_id": "668b...",
+	"account": "665f...",
+	"lastWorkLogOrganization": {
+		"_id": "665f...",
+		"name": "Acme Corp",
+		"workSchedule": {
+			"workStartTime": "08:00",
+			"workEndTime": "17:30",
+			"lunchBreakMinutes": 60
+		}
+	},
+	"createdAt": "2026-05-01T00:00:00.000Z",
+	"updatedAt": "2026-05-05T08:00:00.000Z"
+}
+```
+
+> Trả về `null` nếu user chưa có dữ liệu tham chiếu nào (chưa tạo WorkLog lần nào).
+
+**Response fields**
+
+| Field                     | Type                   | Description                                                                        |
+| ------------------------- | ---------------------- | ---------------------------------------------------------------------------------- |
+| `lastWorkLogOrganization` | `Organization \| null` | Tổ chức gần nhất dùng khi tạo WorkLog — populate sẵn `_id`, `name`, `workSchedule` |
+
+**Cách dùng gợi ý (frontend)**
+
+```
+1. Gọi GET /user-ref khi mở form tạo WorkLog nhanh
+2. Nếu lastWorkLogOrganization != null → pre-fill ô Organization
+3. Sau khi tạo WorkLog thành công → UserRef tự cập nhật phía server
+```
+
+---
+
+### `PATCH /user-ref`
+
+Cập nhật dữ liệu tham chiếu của user hiện tại. Tất cả các field đều optional — chỉ các field được truyền mới được cập nhật.
+
+> Requires: **login**
+
+**Request Body** — tất cả field optional
+
+```json
+{
+	"lastWorkLogOrganization": "665f1a2b3c4d5e6f7a8b9c0d"
+}
+```
+
+| Field                     | Type             | Required | Notes                                               |
+| ------------------------- | ---------------- | -------- | --------------------------------------------------- |
+| `lastWorkLogOrganization` | `string \| null` | ❌       | MongoDB ObjectId của tổ chức; `null` để xoá giá trị |
+
+**Response** — `200 OK` — UserRef document đã populate (giống response của `GET /user-ref`)
+
+```json
+{
+	"_id": "668b...",
+	"account": "665f...",
+	"lastWorkLogOrganization": {
+		"_id": "665f...",
+		"name": "Acme Corp",
+		"workSchedule": {
+			"workStartTime": "08:00",
+			"workEndTime": "17:30",
+			"lunchBreakMinutes": 60
+		}
+	},
+	"createdAt": "2026-05-01T00:00:00.000Z",
+	"updatedAt": "2026-05-05T08:00:00.000Z"
+}
+```
+
+---
+
+## 10. Telegram
 
 Endpoints for Telegram bot integration. The webhook endpoint is called by Telegram servers.
 
@@ -1705,10 +1796,10 @@ Get basic information about the configured Telegram bot.
 
 ```json
 {
-  "id": 123456789,
-  "is_bot": true,
-  "first_name": "LogWork Bot",
-  "username": "logwork_bot"
+	"id": 123456789,
+	"is_bot": true,
+	"first_name": "LogWork Bot",
+	"username": "logwork_bot"
 }
 ```
 
@@ -1724,9 +1815,9 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "url": "https://your-domain.com/telegram/webhook",
-  "has_custom_certificate": false,
-  "pending_update_count": 0
+	"url": "https://your-domain.com/telegram/webhook",
+	"has_custom_certificate": false,
+	"pending_update_count": 0
 }
 ```
 
@@ -1738,21 +1829,21 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "665f1a2b3c4d5e6f7a8b9c0d",
-  "email": "user@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": null,
-  "avatar": null,
-  "role": "USER",
-  "isVerified": false,
-  "metadata": {
-    "sendMail": true,
-    "telegramChatId": null,
-    "sendTelegram": false
-  },
-  "createdAt": "2026-01-01T00:00:00.000Z",
-  "updatedAt": "2026-03-01T00:00:00.000Z"
+	"_id": "665f1a2b3c4d5e6f7a8b9c0d",
+	"email": "user@example.com",
+	"firstName": "John",
+	"lastName": "Doe",
+	"phone": null,
+	"avatar": null,
+	"role": "USER",
+	"isVerified": false,
+	"metadata": {
+		"sendMail": true,
+		"telegramChatId": null,
+		"sendTelegram": false
+	},
+	"createdAt": "2026-01-01T00:00:00.000Z",
+	"updatedAt": "2026-03-01T00:00:00.000Z"
 }
 ```
 
@@ -1783,16 +1874,16 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "666a...",
-  "account": "665f...",
-  "organization": "665f...",
-  "date": "2026-03-23T00:00:00.000Z",
-  "checkIn": "2026-03-23T08:00:00.000Z",
-  "checkOut": "2026-03-23T17:30:00.000Z",
-  "hours": 9.5,
-  "note": null,
-  "createdAt": "2026-03-23T17:35:00.000Z",
-  "updatedAt": "2026-03-23T17:35:00.000Z"
+	"_id": "666a...",
+	"account": "665f...",
+	"organization": "665f...",
+	"date": "2026-03-23T00:00:00.000Z",
+	"checkIn": "2026-03-23T08:00:00.000Z",
+	"checkOut": "2026-03-23T17:30:00.000Z",
+	"hours": 9.5,
+	"note": null,
+	"createdAt": "2026-03-23T17:35:00.000Z",
+	"updatedAt": "2026-03-23T17:35:00.000Z"
 }
 ```
 
@@ -1800,17 +1891,17 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "667c...",
-  "token": "a3f8b2e1c9d047ab12fe3901cd5678ef90ab1234cd5678ef",
-  "account": "665f...",
-  "organization": { "_id": "665f...", "name": "Acme Corp" },
-  "month": 3,
-  "year": 2026,
-  "label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
-  "expiresAt": "2026-04-30T23:59:59.000Z",
-  "isActive": true,
-  "createdAt": "2026-03-24T08:00:00.000Z",
-  "updatedAt": "2026-03-24T08:00:00.000Z"
+	"_id": "667c...",
+	"token": "a3f8b2e1c9d047ab12fe3901cd5678ef90ab1234cd5678ef",
+	"account": "665f...",
+	"organization": { "_id": "665f...", "name": "Acme Corp" },
+	"month": 3,
+	"year": 2026,
+	"label": "Báo cáo tháng 03/2026 — Nguyễn Văn A",
+	"expiresAt": "2026-04-30T23:59:59.000Z",
+	"isActive": true,
+	"createdAt": "2026-03-24T08:00:00.000Z",
+	"updatedAt": "2026-03-24T08:00:00.000Z"
 }
 ```
 
@@ -1820,15 +1911,15 @@ Get the currently configured webhook information.
 
 ```json
 {
-  "_id": "667b...",
-  "account": "665f...",
-  "type": "Work Log",
-  "message": "<p>Your work log has been submitted.</p>",
-  "viewed": false,
-  "variant": "success",
-  "link": null,
-  "createdAt": "2026-03-23T09:00:00.000Z",
-  "updatedAt": "2026-03-23T09:00:00.000Z"
+	"_id": "667b...",
+	"account": "665f...",
+	"type": "Work Log",
+	"message": "<p>Your work log has been submitted.</p>",
+	"viewed": false,
+	"variant": "success",
+	"link": null,
+	"createdAt": "2026-03-23T09:00:00.000Z",
+	"updatedAt": "2026-03-23T09:00:00.000Z"
 }
 ```
 
@@ -1838,11 +1929,11 @@ All `/search` endpoints return this shape:
 
 ```json
 {
-  "data": [],
-  "total": 100,
-  "page": 1,
-  "limit": 20,
-  "totalPages": 5
+	"data": [],
+	"total": 100,
+	"page": 1,
+	"limit": 20,
+	"totalPages": 5
 }
 ```
 
@@ -1850,9 +1941,9 @@ All `/search` endpoints return this shape:
 
 ```json
 {
-  "statusCode": 400,
-  "message": "checkOut must be after checkIn",
-  "error": "Bad Request"
+	"statusCode": 400,
+	"message": "checkOut must be after checkIn",
+	"error": "Bad Request"
 }
 ```
 

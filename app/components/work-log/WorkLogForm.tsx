@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ApiException } from '~/apis/http';
 import { useAuth } from '~/contexts/auth-context';
+import { useUserRef } from '~/contexts/user-ref-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import {
-    useCreateWorkLogMutation,
-    useUpdateWorkLogMutation,
+	useCreateWorkLogMutation,
+	useUpdateWorkLogMutation,
 } from '~/hooks/use-work-log-mutations';
 import { toDateString, toISO, toTimeString } from '~/lib/date';
 import type { WorkLog } from '~/types';
@@ -43,6 +44,8 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 	);
 	const orgs = orgsResponse?.data || [];
 
+	const { userRef, updateLastOrg } = useUserRef();
+
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		setUpdateError(null);
@@ -62,6 +65,7 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 			},
 			{
 				onSuccess: () => {
+					if (!log && selectedOrgId) updateLastOrg(selectedOrgId);
 					setUpdateSuccess(true);
 					onSuccess();
 				},
@@ -84,17 +88,16 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 		}
 	}
 
-	// Khi danh sách tổ chức load xong, tự chọn cơ quan đầu tiên
+	// Ưu tiên cơ quan gần nhất từ UserRef khi tạo mới, fallback về cơ quan đầu tiên
 	useEffect(() => {
-		if (orgs && orgs.length > 0 && !selectedOrgId) {
-			const first = orgs[0];
-			setSelectedOrgId(first._id);
-			setCheckInTime(first.workSchedule.workStartTime);
-			if (first.workSchedule.workEndTime) {
-				setCheckOutTime(first.workSchedule.workEndTime);
-			}
-		}
-	}, [orgs]);
+		if (log || orgs.length === 0 || selectedOrgId) return;
+		const lastOrgId = userRef?.lastWorkLogOrganization?._id;
+		const preferred =
+			(lastOrgId && orgs.find((o) => o._id === lastOrgId)) || orgs[0];
+		setSelectedOrgId(preferred._id);
+		setCheckInTime(preferred.workSchedule.workStartTime);
+		setCheckOutTime(preferred.workSchedule.workEndTime);
+	}, [orgs, userRef, log, selectedOrgId]);
 
 	// Reset success message vào lần kế tiếp
 	useEffect(() => {

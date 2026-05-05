@@ -3,4 +3,5 @@ export * from './git-integration.type';
 export * from './notice.type';
 export * from './organization.type';
 export * from './pagination.type';
+export * from './user-ref.type';
 export * from './work-log.type';

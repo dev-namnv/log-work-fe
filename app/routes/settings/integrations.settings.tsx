@@ -32,7 +32,7 @@ function WebhookGuide({ integration }: { integration: GitIntegration }) {
 	const [copied, setCopied] = useState(false);
 
 	const isGitHub = integration.provider === 'GitHub';
-	const payloadUrl = `${window.location.origin}/git-integration/webhook/${isGitHub ? 'github' : 'gitlab'}/${integration._id}`;
+	const payloadUrl = `{{API_ENDPOINT}}/git-integration/webhook/${isGitHub ? 'github' : 'gitlab'}/${integration._id}`;
 
 	async function handleCopy(text: string) {
 		await navigator.clipboard.writeText(text);

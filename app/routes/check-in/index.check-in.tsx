@@ -4,6 +4,7 @@ import { ApiException } from '~/apis/http';
 import { WorkLogService } from '~/apis/work-log.service';
 import { Button } from '~/components/ui/button';
 import { useAuth } from '~/contexts/auth-context';
+import { useUserRef } from '~/contexts/user-ref-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import {
 	useMonthlyReportQuery,
@@ -60,6 +61,8 @@ export default function CheckInPage() {
 		{ enabled: authReady },
 	);
 
+	const { userRef, updateLastOrg } = useUserRef();
+
 	const today = localDateStr(now);
 	const currentMonth = now.getMonth() + 1;
 	const currentYear = now.getFullYear();
@@ -70,12 +73,14 @@ export default function CheckInPage() {
 		return () => clearInterval(timer);
 	}, []);
 
-	// Tự chọn tổ chức đầu tiên khi load
+	// Ưu tiên chọn tổ chức gần nhất từ UserRef, fallback về tổ chức đầu tiên
 	useEffect(() => {
-		if (orgs?.data && orgs.data.length > 0 && !selectedOrgId) {
-			setSelectedOrgId(orgs.data[0]._id);
-		}
-	}, [orgs, selectedOrgId]);
+		if (selectedOrgId || !orgs?.data?.length) return;
+		const lastOrgId = userRef?.lastWorkLogOrganization?._id;
+		const preferred =
+			(lastOrgId && orgs.data.find((o) => o._id === lastOrgId)) || orgs.data[0];
+		setSelectedOrgId(preferred._id);
+	}, [orgs, userRef, selectedOrgId]);
 
 	// Báo cáo tháng theo tổ chức → lấy log của hôm nay
 	const {
@@ -107,6 +112,7 @@ export default function CheckInPage() {
 				checkOut: null,
 			}),
 		onSuccess: () => {
+			updateLastOrg(selectedOrgId);
 			setErrorMsg(null);
 			queryClient.invalidateQueries({
 				queryKey: WORK_LOG_KEYS.all,
