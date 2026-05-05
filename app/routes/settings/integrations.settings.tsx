@@ -2,7 +2,7 @@ import { Github, GitlabIcon, Trash2, Webhook } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { GitIntegrationService } from '~/apis/git-integration.service';
-import { ApiException } from '~/apis/http';
+import { API_BASE_URL, ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
@@ -32,7 +32,7 @@ function WebhookGuide({ integration }: { integration: GitIntegration }) {
 	const [copied, setCopied] = useState(false);
 
 	const isGitHub = integration.provider === 'GitHub';
-	const payloadUrl = `{{API_ENDPOINT}}/git-integration/webhook/${isGitHub ? 'github' : 'gitlab'}/${integration._id}`;
+	const payloadUrl = `${API_BASE_URL}/git-integration/webhook/${isGitHub ? 'github' : 'gitlab'}/${integration._id}`;
 
 	async function handleCopy(text: string) {
 		await navigator.clipboard.writeText(text);
