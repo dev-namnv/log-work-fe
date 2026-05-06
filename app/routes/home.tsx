@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { endOfMinute } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
@@ -274,20 +275,21 @@ export default function HomePage() {
 			WorkLogService.update(logId, { checkOut: new Date().toISOString() }),
 		onMutate: (logId) => {
 			const nowIso = new Date().toISOString();
+			const checkOut = endOfMinute(new Date(nowIso)).toISOString(); // làm tròn lên cuối phút để tránh check-out trước check-in khi đồng hồ đang chạy
 			setOptimisticTodayLog((prev) => {
 				const baseLog = prev ?? todayLog;
 				if (!baseLog) return prev;
 
 				const hours = Math.max(
 					0,
-					(new Date(nowIso).getTime() - new Date(baseLog.checkIn).getTime()) /
+					(new Date(checkOut).getTime() - new Date(baseLog.checkIn).getTime()) /
 						3600000,
 				);
 
 				return {
 					...baseLog,
 					_id: baseLog._id || logId,
-					checkOut: nowIso,
+					checkOut,
 					hours,
 					updatedAt: nowIso,
 					organization: baseLog.organization as string,
