@@ -28,3 +28,23 @@ export function formatDateVN(iso: string) {
 		year: 'numeric',
 	});
 }
+
+export function isoToHHmm(iso: string | null): string {
+	if (!iso) return '—';
+	return new Date(iso).toLocaleTimeString('vi-VN', {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+	});
+}
+
+export function isoToDDMM(iso: string): string {
+	return new Date(iso).toLocaleDateString('vi-VN', {
+		day: '2-digit',
+		month: '2-digit',
+	});
+}
+
+export function isoToWeekday(iso: string): string {
+	return new Date(iso).toLocaleDateString('vi-VN', { weekday: 'short' });
+}

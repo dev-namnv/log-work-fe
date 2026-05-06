@@ -242,7 +242,7 @@ export default function HomePage() {
 						organization: selectedOrgId,
 						date: nowIso,
 						checkIn: nowIso,
-						checkOut: undefined,
+						checkOut: null,
 						hours: 0,
 						note: '',
 						createdAt: nowIso,

@@ -1,40 +1,59 @@
 import { useState } from 'react';
-import { useParams } from 'react-router';
+import { WorkLogService } from '~/apis/work-log.service';
 import CalendarView from '~/components/work-log/CalendarView';
-import { useShareViewQuery } from '~/hooks/use-work-log-queries';
+import { isoToDDMM, isoToHHmm, isoToWeekday } from '~/lib/date';
 import { cn } from '~/lib/utils';
 import type { WorkLog } from '~/types';
+import type { Route } from './+types/$token.share';
 
-export function meta() {
+export async function loader({ params }: { params: { token: string } }) {
+	const token = params.token;
+	if (!token) {
+		throw new Response('Token is required', { status: 400 });
+	}
+	try {
+		const data = await WorkLogService.viewShare(token);
+		if (!data) {
+			throw new Response('Share not found', { status: 404 });
+		}
+		return data;
+	} catch (error) {
+		if (error instanceof Response) {
+			if (error.status === 404) {
+				throw new Response('Báo cáo chia sẻ không tồn tại hoặc đã hết hạn', {
+					status: 404,
+				});
+			}
+			if (error.status === 400) {
+				throw new Response('Yêu cầu không hợp lệ', { status: 400 });
+			}
+			if (error.status === 410) {
+				throw new Response('Báo cáo chia sẻ đã hết hạn', { status: 410 });
+			}
+		}
+		throw new Response('Internal Server Error', { status: 500 });
+	}
+}
+
+export const meta: Route.MetaFunction = ({ loaderData, error }) => {
+	if (error) {
+		return [
+			{ title: 'Báo cáo chia sẻ không hợp lệ — Log Work' },
+			{
+				name: 'description',
+				content: 'Báo cáo chia sẻ không tồn tại hoặc đã hết hạn',
+			},
+		];
+	}
+
 	return [
-		{ title: 'Báo cáo chấm công — Log Work' },
-		{ name: 'description', content: 'Xem báo cáo chấm công được chia sẻ' },
+		{ title: `${loaderData.share.label} — Log Work` },
+		{
+			name: 'description',
+			content: `Báo cáo chấm công tháng ${loaderData.month}/${loaderData.year} của ${loaderData.account.firstName} ${loaderData.account.lastName}`,
+		},
 	];
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function isoToHHmm(iso: string | null): string {
-	if (!iso) return '—';
-	return new Date(iso).toLocaleTimeString('vi-VN', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false,
-	});
-}
-
-function isoToDDMM(iso: string): string {
-	return new Date(iso).toLocaleDateString('vi-VN', {
-		day: '2-digit',
-		month: '2-digit',
-	});
-}
-
-function isoToWeekday(iso: string): string {
-	return new Date(iso).toLocaleDateString('vi-VN', { weekday: 'short' });
-}
+};
 
 function StatCard({
 	label,
@@ -112,76 +131,9 @@ function LogRow({ log }: { log: WorkLog }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function ShareViewPage() {
-	const { token } = useParams<{ token: string }>();
-	const { data, isLoading, isError, error } = useShareViewQuery(token ?? '');
+export default function ShareViewPage({ loaderData }: Route.ComponentProps) {
+	const data = loaderData;
 	const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
-
-	// --------------- Loading -----------------
-	if (isLoading) {
-		return (
-			<div className="min-h-screen bg-background flex items-center justify-center">
-				<div className="flex flex-col items-center gap-3 text-muted-foreground">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="32"
-						height="32"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="1.5"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						className="animate-spin">
-						<path d="M21 12a9 9 0 1 1-6.219-8.56" />
-					</svg>
-					<p className="text-sm">Đang tải báo cáo…</p>
-				</div>
-			</div>
-		);
-	}
-
-	// --------------- Error / expired -----------------
-	if (isError) {
-		const status = (error as { status?: number })?.status;
-		const is410 = status === 410;
-		return (
-			<div className="min-h-screen bg-background flex items-center justify-center px-4">
-				<div className="max-w-sm w-full text-center space-y-3">
-					<div className="flex justify-center">
-						<span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="28"
-								height="28"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								className="text-red-500">
-								<circle cx="12" cy="12" r="10" />
-								<path d="m15 9-6 6" />
-								<path d="m9 9 6 6" />
-							</svg>
-						</span>
-					</div>
-					<h1 className="text-lg font-semibold">
-						{is410 ? 'Link đã hết hạn' : 'Không tìm thấy'}
-					</h1>
-					<p className="text-sm text-muted-foreground">
-						{is410
-							? 'Link chia sẻ này đã bị thu hồi hoặc đã hết hạn.'
-							: 'Link chia sẻ không tồn tại hoặc đã bị xoá.'}
-					</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (!data) return null;
-
 	const { share, account, organization, month, year } = data;
 	const fullName = `${account.firstName} ${account.lastName}`;
 	const orgName = organization?.name ?? 'Tất cả tổ chức';
