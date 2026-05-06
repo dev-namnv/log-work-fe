@@ -150,6 +150,10 @@ function ConfirmReCheckOutModal({
 // Page
 // ---------------------------------------------------------------------------
 
+interface WorkLogFormValues extends Omit<WorkLog, 'organization'> {
+	organization: string;
+}
+
 export default function HomePage() {
 	const { user, loading: authLoading } = useAuth();
 	const authReady = !authLoading && !!user;
@@ -160,9 +164,8 @@ export default function HomePage() {
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 	const [confirmOpen, setConfirmOpen] = useState(false);
-	const [optimisticTodayLog, setOptimisticTodayLog] = useState<WorkLog | null>(
-		null,
-	);
+	const [optimisticTodayLog, setOptimisticTodayLog] =
+		useState<WorkLogFormValues | null>(null);
 
 	// Chỉ gọi API nếu đã login
 	const { data: orgs } = useOrganizationsQuery(
@@ -227,7 +230,7 @@ export default function HomePage() {
 			WorkLogService.create({
 				organizationId: selectedOrgId,
 				checkIn: new Date().toISOString(),
-				checkOut: null,
+				checkOut: undefined,
 			}),
 		onMutate: () => {
 			const nowIso = new Date().toISOString();
@@ -239,16 +242,20 @@ export default function HomePage() {
 						organization: selectedOrgId,
 						date: nowIso,
 						checkIn: nowIso,
-						checkOut: null,
+						checkOut: undefined,
 						hours: 0,
 						note: '',
 						createdAt: nowIso,
 						updatedAt: nowIso,
+						skipLunchBreak: false,
 					},
 			);
 		},
 		onSuccess: (createdLog) => {
-			setOptimisticTodayLog(createdLog);
+			setOptimisticTodayLog({
+				...createdLog,
+				organization: createdLog.organization._id,
+			});
 			setErrorMsg(null);
 			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
@@ -283,17 +290,21 @@ export default function HomePage() {
 					checkOut: nowIso,
 					hours,
 					updatedAt: nowIso,
+					organization: baseLog.organization as string,
 				};
 			});
 		},
-		onSuccess: (updatedLog) => {
-			setOptimisticTodayLog(updatedLog);
+		onSuccess: () => {
 			setErrorMsg(null);
 			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
-			setOptimisticTodayLog(todayLog ?? null);
+			setOptimisticTodayLog(
+				todayLog
+					? { ...todayLog, organization: todayLog.organization._id }
+					: null,
+			);
 			setErrorMsg(
 				err instanceof ApiException ? err.message : 'Check-out thất bại.',
 			);
