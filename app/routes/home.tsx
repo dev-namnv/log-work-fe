@@ -11,6 +11,12 @@ import {
 	useMonthlyReportQuery,
 	WORK_LOG_KEYS,
 } from '~/hooks/use-work-log-queries';
+import {
+	isoToDateShort,
+	isoToHHmm,
+	localDateStr,
+	localTimeStr,
+} from '~/lib/date';
 import { cn } from '~/lib/utils';
 import type { WorkLog } from '~/types';
 
@@ -19,45 +25,6 @@ export function meta() {
 		{ title: 'Tổng quan — Log Work' },
 		{ name: 'description', content: 'Chấm công nhanh và tổng quan tháng' },
 	];
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** YYYY-MM-DD theo múi giờ Việt Nam */
-function localDateStr(d: Date = new Date()): string {
-	return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-}
-
-/** HH:mm:ss theo múi giờ Việt Nam */
-function localTimeStr(d: Date = new Date()): string {
-	return d.toLocaleTimeString('vi-VN', {
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-		hour12: false,
-		timeZone: 'Asia/Ho_Chi_Minh',
-	});
-}
-
-/** HH:mm từ ISO (múi giờ Việt Nam) */
-function isoToHHmm(iso: string): string {
-	return new Date(iso).toLocaleTimeString('vi-VN', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false,
-		timeZone: 'Asia/Ho_Chi_Minh',
-	});
-}
-
-/** dd/mm từ ISO (múi giờ Việt Nam) */
-function isoToDateShort(iso: string): string {
-	return new Date(iso).toLocaleDateString('vi-VN', {
-		day: '2-digit',
-		month: '2-digit',
-		timeZone: 'Asia/Ho_Chi_Minh',
-	});
 }
 
 // ---------------------------------------------------------------------------
