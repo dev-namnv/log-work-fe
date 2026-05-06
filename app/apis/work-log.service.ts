@@ -113,7 +113,9 @@ export class WorkLogService {
 	 * Cập nhật bản ghi chấm công. Giờ làm được tính lại tự động từ checkIn/checkOut.
 	 */
 	static update(id: string, dto: UpdateWorkLogDto): Promise<MessageResponse> {
-		return http.patch<MessageResponse>(`/work-log/${id}`, { json: dto });
+		return http.patch<MessageResponse>(`/work-log/${id}`, {
+			json: { ...dto, note: dto.note ?? '' },
+		});
 	}
 
 	/**
