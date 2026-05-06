@@ -6,7 +6,7 @@ import { cn } from '~/lib/utils';
 import type { WorkLog } from '~/types';
 import type { Route } from './+types/$token.share';
 
-export async function loader({ params }: { params: { token: string } }) {
+export async function clientLoader({ params }: { params: { token: string } }) {
 	const token = params.token;
 	if (!token) {
 		throw new Response('Token is required', { status: 400 });
