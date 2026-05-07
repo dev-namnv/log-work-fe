@@ -138,26 +138,33 @@ export default function WorkLogsPage() {
 					<label className="text-xs text-muted-foreground font-medium">
 						Tháng
 					</label>
-					<Input
-						type="number"
-						min={1}
-						max={12}
+					<select
+						title="Chọn tháng"
 						value={month}
 						onChange={(e) => setMonth(Number(e.target.value))}
-						className="w-20"
-					/>
+						className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+						{Array.from({ length: 12 }, (_, i) => (
+							<option key={i + 1} value={i + 1}>
+								Tháng {i + 1}
+							</option>
+						))}
+					</select>
 				</div>
 				<div className="space-y-1">
 					<label className="text-xs text-muted-foreground font-medium">
 						Năm
 					</label>
-					<Input
-						type="number"
-						min={2020}
+					<select
+						title="Chọn năm"
 						value={year}
 						onChange={(e) => setYear(Number(e.target.value))}
-						className="w-28"
-					/>
+						className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+						{[2024, 2025, 2026, 2027].map((y) => (
+							<option key={y} value={y}>
+								{y}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 
