@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import { GitIntegrationService } from '~/apis/git-integration.service';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
@@ -124,11 +125,14 @@ export default function WorkLogsPage() {
 	function handleGitIntegrationSync() {
 		setGitSyncing(true);
 		GitIntegrationService.sync()
-			.then(() => {
+			.then((res) => {
 				queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.lists() });
+				toast.success(res.message ?? 'Đồng bộ Git thành công');
 			})
 			.catch((error) => {
-				// Handle error if needed
+				toast.error(
+					error instanceof Error ? error.message : 'Đồng bộ thất bại',
+				);
 				console.error(error);
 			})
 			.finally(() => {
