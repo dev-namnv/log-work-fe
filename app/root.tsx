@@ -83,3 +83,21 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 		</main>
 	);
 }
+
+// ---------------------------------------------------------------------------
+// Hydrate Fallback: Show loading while hydrating the app on the client side
+// ---------------------------------------------------------------------------
+export function HydrateFallback() {
+	return (
+		<div className="min-h-screen flex items-center justify-center">
+			<div className="flex flex-col items-center gap-3">
+				<div
+					className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin"
+					role="status"
+					aria-label="Đang tải"
+				/>
+				<p className="text-sm text-muted-foreground">Đang tải...</p>
+			</div>
+		</div>
+	);
+}
