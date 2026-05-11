@@ -1,5 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { GitIntegrationService } from '~/apis/git-integration.service';
 import { ApiException } from '~/apis/http';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
@@ -7,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { useAuth } from '~/contexts/auth-context';
 import {
+	WORK_LOG_KEYS,
 	useMonthlyReportQuery,
 	useWorkLogsQuery,
 } from '~/hooks/use-work-log-queries';
@@ -70,6 +74,7 @@ export default function WorkLogsPage() {
 	const { user, loading: authLoading } = useAuth();
 	const authReady = !authLoading && !!user;
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const now = new Date();
 	const [month, setMonth] = useState(now.getMonth() + 1);
@@ -112,6 +117,23 @@ export default function WorkLogsPage() {
 	function handleSearch(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		setSearch(keyword);
+	}
+
+	const [gitSyncing, setGitSyncing] = useState(false);
+
+	function handleGitIntegrationSync() {
+		setGitSyncing(true);
+		GitIntegrationService.sync()
+			.then(() => {
+				queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.lists() });
+			})
+			.catch((error) => {
+				// Handle error if needed
+				console.error(error);
+			})
+			.finally(() => {
+				setGitSyncing(false);
+			});
 	}
 
 	const logsErrorMsg =
@@ -235,16 +257,27 @@ export default function WorkLogsPage() {
 
 			{/* Danh sách */}
 			<div className="space-y-3">
-				<form onSubmit={handleSearch} className="flex gap-2 max-w-md">
-					<Input
-						placeholder="Tìm theo ghi chú..."
-						value={keyword}
-						onChange={(e) => setKeyword(e.target.value)}
-					/>
-					<Button type="submit" variant="outline">
-						Tìm
+				<div className="flex items-center justify-between gap-2 flex-wrap">
+					<form onSubmit={handleSearch} className="flex gap-2 max-w-md">
+						<Input
+							placeholder="Tìm theo ghi chú..."
+							value={keyword}
+							onChange={(e) => setKeyword(e.target.value)}
+						/>
+						<Button type="submit" variant="outline">
+							Tìm
+						</Button>
+					</form>
+					<Button
+						onClick={handleGitIntegrationSync}
+						variant="outline"
+						disabled={gitSyncing}>
+						<RefreshCw
+							className={`size-4 ${gitSyncing ? 'animate-spin' : ''}`}
+						/>
+						Git
 					</Button>
-				</form>
+				</div>
 
 				{logsErrorMsg && (
 					<Alert variant="destructive">
