@@ -59,13 +59,19 @@ function Button({
 		<Comp
 			className={cn(buttonVariants({ variant, size, className }))}
 			{...props}>
-			{startIcon}
-			{responsiveText && (startIcon || endIcon) ? (
-				<span className="hidden sm:inline">{children}</span>
-			) : (
+			{asChild ? (
 				children
+			) : (
+				<>
+					{startIcon}
+					{responsiveText && (startIcon || endIcon) ? (
+						<span className="hidden sm:inline">{children}</span>
+					) : (
+						children
+					)}
+					{endIcon}
+				</>
 			)}
-			{endIcon}
 		</Comp>
 	);
 }
