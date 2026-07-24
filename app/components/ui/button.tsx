@@ -37,6 +37,10 @@ interface ButtonProps
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
 		VariantProps<typeof buttonVariants> {
 	asChild?: boolean;
+	startIcon?: React.ReactNode;
+	endIcon?: React.ReactNode;
+	/** Hide text on mobile, only show icon; breakpoint sm */
+	responsiveText?: boolean;
 }
 
 function Button({
@@ -44,15 +48,26 @@ function Button({
 	variant,
 	size,
 	asChild = false,
+	startIcon,
+	endIcon,
+	responsiveText = false,
+	children,
 	...props
 }: ButtonProps) {
 	const Comp = asChild ? Slot : 'button';
 	return (
 		<Comp
 			className={cn(buttonVariants({ variant, size, className }))}
-			{...props}
-		/>
+			{...props}>
+			{startIcon}
+			{responsiveText && (startIcon || endIcon) ? (
+				<span className="hidden sm:inline">{children}</span>
+			) : (
+				children
+			)}
+			{endIcon}
+		</Comp>
 	);
 }
 
-export { Button, buttonVariants };
+export { Button, buttonVariants, type ButtonProps };

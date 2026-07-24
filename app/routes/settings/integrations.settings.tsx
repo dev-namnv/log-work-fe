@@ -12,6 +12,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from '~/components/ui/card';
+import { CopyButton } from '~/components/ui/copy-button';
+import { Typography } from '~/components/ui/typography';
 import { useDeleteGitIntegrationMutation } from '~/hooks/use-git-integration-mutations';
 import { useGitIntegrationsQuery } from '~/hooks/use-git-integration-queries';
 import { cn } from '~/lib/utils';
@@ -29,16 +31,8 @@ export function meta() {
 // ---------------------------------------------------------------------------
 
 function WebhookGuide({ integration }: { integration: GitIntegration }) {
-	const [copied, setCopied] = useState(false);
-
 	const isGitHub = integration.provider === 'GitHub';
 	const payloadUrl = `${API_BASE_URL}/git-integration/webhook/${isGitHub ? 'github' : 'gitlab'}/${integration._id}`;
-
-	async function handleCopy(text: string) {
-		await navigator.clipboard.writeText(text);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	}
 
 	return (
 		<div className="mt-3 space-y-2 rounded-lg border border-border bg-muted/40 p-3 text-sm">
@@ -49,15 +43,10 @@ function WebhookGuide({ integration }: { integration: GitIntegration }) {
 			<div className="space-y-1">
 				<p className="text-muted-foreground">Payload URL</p>
 				<div className="flex items-center gap-2">
-					<code className="flex-1 break-all rounded bg-muted px-2 py-1 text-xs">
+					<Typography variant="code" lines={1} className="flex-1">
 						{payloadUrl}
-					</code>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => handleCopy(payloadUrl)}>
-						{copied ? 'Đã sao chép' : 'Sao chép'}
-					</Button>
+					</Typography>
+					<CopyButton value={payloadUrl} />
 				</div>
 			</div>
 			<div className="space-y-1">
@@ -65,15 +54,10 @@ function WebhookGuide({ integration }: { integration: GitIntegration }) {
 					{isGitHub ? 'Secret' : 'Secret token'}
 				</p>
 				<div className="flex items-center gap-2">
-					<code className="flex-1 break-all rounded bg-muted px-2 py-1 text-xs font-mono">
+					<Typography variant="code" lines={1} className="flex-1">
 						{integration.webhookSecret}
-					</code>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => handleCopy(integration.webhookSecret)}>
-						{copied ? 'Đã sao chép' : 'Sao chép'}
-					</Button>
+					</Typography>
+					<CopyButton value={integration.webhookSecret} />
 				</div>
 			</div>
 			<p className="text-muted-foreground text-xs">
@@ -121,16 +105,18 @@ function IntegrationCard({ integration }: IntegrationCardProps) {
 					<Button
 						size="sm"
 						variant="outline"
+						responsiveText
+						startIcon={<Webhook className="h-4 w-4" />}
 						onClick={() => setShowGuide((v) => !v)}>
-						<Webhook className="h-4 w-4" />
 						Webhook
 					</Button>
 					<Button
 						size="sm"
 						variant="destructive"
+						responsiveText
+						startIcon={<Trash2 className="h-4 w-4" />}
 						disabled={deleteMutation.isPending}
 						onClick={() => deleteMutation.mutate(integration._id)}>
-						<Trash2 className="h-4 w-4" />
 						Hủy liên kết
 					</Button>
 				</div>
