@@ -8,6 +8,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from 'react-router';
+import { Toaster } from 'sonner';
 
 import { queryClient } from '~/lib/query-client';
 import { store } from '~/store';
@@ -50,6 +51,7 @@ export default function App() {
 		<ReduxProvider store={store}>
 			<QueryClientProvider client={queryClient}>
 				<Outlet />
+				<Toaster richColors position="top-right" />
 			</QueryClientProvider>
 		</ReduxProvider>
 	);

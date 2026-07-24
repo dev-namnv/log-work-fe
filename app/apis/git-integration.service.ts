@@ -29,4 +29,11 @@ export const GitIntegrationService = {
 	deleteById(id: string): Promise<MessageResponse> {
 		return http.delete(`/git-integration/${id}/delete`);
 	},
+
+	/**
+	 * Đồng bộ dữ liệu chấm công từ các tài khoản Git đã liên kết
+	 */
+	sync(): Promise<MessageResponse> {
+		return http.post('/git-integration/sync');
+	},
 };
