@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import AddMinutes from './AddMinutes';
 
 interface WorkLogFormProps {
 	log: WorkLog | null;
@@ -45,6 +46,8 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 	const orgs = orgsResponse?.data || [];
 
 	const { userRef, updateLastOrg } = useUserRef();
+
+	const selectedOrg = orgs.find((o) => o._id === selectedOrgId);
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -179,6 +182,13 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 						onChange={(e) => setCheckInTime(e.target.value)}
 						required
 					/>
+					<AddMinutes
+						value={checkInTime}
+						options={[5, 10, 15, 30]}
+						onChange={setCheckInTime}
+						base={selectedOrg?.workSchedule.workStartTime}
+						showReset
+					/>
 				</div>
 				<div className="space-y-1.5">
 					<Label htmlFor="checkOutTime">Giờ ra</Label>
@@ -189,6 +199,13 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 						required={false}
 						value={checkOutTime}
 						onChange={(e) => setCheckOutTime(e.target.value)}
+					/>
+					<AddMinutes
+						value={checkOutTime}
+						options={[5, 10, 15, 30]}
+						onChange={setCheckOutTime}
+						base={selectedOrg?.workSchedule.workEndTime}
+						showReset
 					/>
 				</div>
 			</div>
