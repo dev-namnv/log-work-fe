@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronDown, RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { GitIntegrationService } from '~/apis/git-integration.service';
@@ -121,10 +121,25 @@ export default function WorkLogsPage() {
 	}
 
 	const [gitSyncing, setGitSyncing] = useState(false);
+	const [gitMenuOpen, setGitMenuOpen] = useState(false);
+	const [subDays, setSubDays] = useState(7);
+	const gitMenuRef = useRef<HTMLDivElement>(null);
 
-	function handleGitIntegrationSync() {
+	useEffect(() => {
+		if (!gitMenuOpen) return;
+		function onDown(e: MouseEvent) {
+			if (!gitMenuRef.current?.contains(e.target as Node)) {
+				setGitMenuOpen(false);
+			}
+		}
+		document.addEventListener('mousedown', onDown);
+		return () => document.removeEventListener('mousedown', onDown);
+	}, [gitMenuOpen]);
+
+	function handleGitIntegrationSync(days?: number) {
 		setGitSyncing(true);
-		GitIntegrationService.sync()
+		setGitMenuOpen(false);
+		GitIntegrationService.sync(days)
 			.then((res) => {
 				queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.lists() });
 				toast.success(res.message ?? 'Đồng bộ Git thành công');
@@ -272,15 +287,71 @@ export default function WorkLogsPage() {
 							Tìm
 						</Button>
 					</form>
-					<Button
-						onClick={handleGitIntegrationSync}
-						variant="outline"
-						disabled={gitSyncing}>
-						<RefreshCw
-							className={`size-4 ${gitSyncing ? 'animate-spin' : ''}`}
-						/>
-						Git
-					</Button>
+					<div ref={gitMenuRef} className="relative flex">
+						<Button
+							onClick={() => handleGitIntegrationSync()}
+							variant="outline"
+							disabled={gitSyncing}
+							className="rounded-r-none">
+							<RefreshCw
+								className={`size-4 ${gitSyncing ? 'animate-spin' : ''}`}
+							/>
+							Git
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							size="icon"
+							aria-label="Tùy chọn số ngày đồng bộ"
+							disabled={gitSyncing}
+							onClick={() => setGitMenuOpen((o) => !o)}
+							className="rounded-l-none border-l-0">
+							<ChevronDown
+								className={`size-4 transition-transform ${gitMenuOpen ? 'rotate-180' : ''}`}
+							/>
+						</Button>
+
+						{gitMenuOpen && (
+							<div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-md border bg-popover p-3 shadow-md">
+								<p className="text-xs font-medium text-muted-foreground mb-2">
+									Đồng bộ số ngày gần nhất (tối đa 30)
+								</p>
+								<div className="flex gap-1 mb-3">
+									{[7, 14, 30].map((d) => (
+										<Button
+											key={d}
+											type="button"
+											size="sm"
+											variant={subDays === d ? 'default' : 'outline'}
+											className="flex-1"
+											onClick={() => setSubDays(d)}>
+											{d}
+										</Button>
+									))}
+								</div>
+								<Input
+									type="number"
+									min={1}
+									max={30}
+									value={subDays}
+									aria-label="Số ngày"
+									onChange={(e) => {
+										const n = Number(e.target.value);
+										if (Number.isNaN(n)) return;
+										setSubDays(Math.min(30, Math.max(1, n)));
+									}}
+									className="mb-3"
+								/>
+								<Button
+									type="button"
+									className="w-full"
+									disabled={gitSyncing}
+									onClick={() => handleGitIntegrationSync(subDays)}>
+									Đồng bộ {subDays} ngày
+								</Button>
+							</div>
+						)}
+					</div>
 				</div>
 
 				{logsErrorMsg && (

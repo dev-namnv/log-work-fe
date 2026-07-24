@@ -33,7 +33,7 @@ export const GitIntegrationService = {
 	/**
 	 * Đồng bộ dữ liệu chấm công từ các tài khoản Git đã liên kết
 	 */
-	sync(): Promise<MessageResponse> {
-		return http.post('/git-integration/sync');
+	sync(subDays?: number): Promise<MessageResponse> {
+		return http.post('/git-integration/sync', { params: { subDays } });
 	},
 };
