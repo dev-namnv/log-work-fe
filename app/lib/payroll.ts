@@ -1,3 +1,4 @@
+import { toDateString } from '~/lib/date';
 import type { MemberWorkLog } from '~/types';
 
 export type DayType = 'weekday' | 'weekend' | 'holiday';
@@ -22,9 +23,10 @@ export interface SalaryBreakdown {
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
-// "YYYY-MM-DD" -> loại ngày. holidays chứa "DD-MM" (lặp hằng năm).
-function dayType(date: string, holidays: Set<string>): DayType {
-	const [y, m, d] = date.split('-').map(Number);
+// log.date là ISO datetime -> chuẩn hoá về ngày VN rồi phân loại.
+// holidays chứa "DD-MM" (lặp hằng năm).
+function dayType(rawDate: string, holidays: Set<string>): DayType {
+	const [y, m, d] = toDateString(rawDate).split('-').map(Number);
 	if (holidays.has(`${pad2(d)}-${pad2(m)}`)) return 'holiday';
 	const wd = new Date(y, m - 1, d).getDay(); // 0=CN, 6=T7
 	return wd === 0 || wd === 6 ? 'weekend' : 'weekday';
