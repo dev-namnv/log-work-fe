@@ -1,7 +1,15 @@
 import { useState } from 'react';
+import { NumberInput } from '~/components/ui/number-input';
 import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import { useOrgReportQuery } from '~/hooks/use-work-log-queries';
+import { formatCurrency, formatNumber } from '~/lib/number';
+import {
+	computeSalary,
+	DEFAULT_OT_RATES,
+	normalizeHoliday,
+	type OtRates,
+} from '~/lib/payroll';
 import { cn } from '~/lib/utils';
 import type { MemberWorkLog } from '~/types';
 
@@ -34,11 +42,36 @@ function MemberRow({
 	member,
 	standardWorkDays,
 	totalStandardHours,
+	standardHoursPerDay,
+	baseSalary,
+	otRates,
+	holidays,
+	onSalaryChange,
 }: {
 	member: MemberWorkLog;
 	standardWorkDays: number;
 	totalStandardHours: number;
+	standardHoursPerDay: number;
+	baseSalary: number;
+	otRates: OtRates;
+	holidays: Set<string>;
+	onSalaryChange: (value: number) => void;
 }) {
+	const { total: salary, regularHours, otHours } = computeSalary(
+		baseSalary,
+		member,
+		{ totalStandardHours, standardHoursPerDay },
+		otRates,
+		holidays,
+	);
+	const h = (n: number) => `${formatNumber(+n.toFixed(1))}h`;
+	// Chỉ hiện bậc có giờ; giờ ngày thường luôn hiện
+	const breakdown = [
+		{ label: 'Thường', val: regularHours, show: true },
+		{ label: 'OT thường', val: otHours.weekday, show: otHours.weekday > 0 },
+		{ label: 'OT T7/CN', val: otHours.weekend, show: otHours.weekend > 0 },
+		{ label: 'OT lễ', val: otHours.holiday, show: otHours.holiday > 0 },
+	].filter((b) => b.show);
 	return (
 		<tr className="border-b last:border-0 hover:bg-muted/40 transition-colors text-sm">
 			<td className="py-3 px-4">
@@ -62,6 +95,24 @@ function MemberRow({
 			<td className="py-3 px-4">
 				<AttendanceBadge rate={member.attendanceRate} />
 			</td>
+			<td className="py-3 px-4">
+				<NumberInput
+					value={baseSalary || null}
+					onValueChange={onSalaryChange}
+					placeholder="0"
+					className="w-32"
+				/>
+			</td>
+			<td className="py-3 px-4 text-right align-top">
+				<p className="font-medium tabular-nums whitespace-nowrap">
+					{salary > 0 ? formatCurrency(salary) : '—'}
+				</p>
+				{salary > 0 && (
+					<p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums leading-tight">
+						{breakdown.map((b) => `${b.label} ${h(b.val)}`).join(' · ')}
+					</p>
+				)}
+			</td>
 		</tr>
 	);
 }
@@ -74,6 +125,17 @@ export default function PayrollReportPage() {
 	const [month, setMonth] = useState(now.getMonth() + 1);
 	const [year, setYear] = useState(now.getFullYear());
 	const [orgId, setOrgId] = useState('');
+	const [otRates, setOtRates] = useState<OtRates>(DEFAULT_OT_RATES);
+	const [holidays, setHolidays] = useState<string[]>([]);
+	const [holidayInput, setHolidayInput] = useState('');
+	const [salaries, setSalaries] = useState<Record<string, number>>({});
+	const holidaySet = new Set(holidays);
+
+	const addHoliday = () => {
+		const norm = normalizeHoliday(holidayInput);
+		if (norm && !holidays.includes(norm)) setHolidays((h) => [...h, norm]);
+		setHolidayInput('');
+	};
 
 	const { data: orgs, isLoading: orgsLoading } = useOrganizationsQuery(
 		{
@@ -160,6 +222,82 @@ export default function PayrollReportPage() {
 						))}
 					</select>
 				</div>
+				<div className="space-y-1">
+					<label className="text-xs text-muted-foreground font-medium">
+						% OT thường
+					</label>
+					<NumberInput
+						value={otRates.weekday}
+						onValueChange={(v) => setOtRates((r) => ({ ...r, weekday: v }))}
+						className="w-20"
+						title="% lương giờ tăng ca ngày thường"
+					/>
+				</div>
+				<div className="space-y-1">
+					<label className="text-xs text-muted-foreground font-medium">
+						% OT cuối tuần
+					</label>
+					<NumberInput
+						value={otRates.weekend}
+						onValueChange={(v) => setOtRates((r) => ({ ...r, weekend: v }))}
+						className="w-20"
+						title="% lương giờ tăng ca cuối tuần"
+					/>
+				</div>
+				<div className="space-y-1">
+					<label className="text-xs text-muted-foreground font-medium">
+						% OT lễ
+					</label>
+					<NumberInput
+						value={otRates.holiday}
+						onValueChange={(v) => setOtRates((r) => ({ ...r, holiday: v }))}
+						className="w-20"
+						title="% lương giờ tăng ca ngày lễ"
+					/>
+				</div>
+				<div className="space-y-1">
+					<label className="text-xs text-muted-foreground font-medium">
+						Ngày lễ (DD-MM)
+					</label>
+					<div className="flex min-h-9 w-64 flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-1 focus-within:ring-1 focus-within:ring-ring">
+						{holidays.map((h) => (
+							<span
+								key={h}
+								className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-medium tabular-nums">
+								{h}
+								<button
+									type="button"
+									aria-label={`Xoá ${h}`}
+									onClick={() =>
+										setHolidays((list) => list.filter((x) => x !== h))
+									}
+									className="text-muted-foreground hover:text-foreground">
+									×
+								</button>
+							</span>
+						))}
+						<input
+							value={holidayInput}
+							onChange={(e) => setHolidayInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ',') {
+									e.preventDefault();
+									addHoliday();
+								} else if (
+									e.key === 'Backspace' &&
+									!holidayInput &&
+									holidays.length
+								) {
+									setHolidays((list) => list.slice(0, -1));
+								}
+							}}
+							onBlur={addHoliday}
+							placeholder={holidays.length ? '' : '01-01'}
+							title="Nhập ngày lễ dạng DD-MM rồi Enter"
+							className="min-w-[3rem] flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+						/>
+					</div>
+				</div>
 			</div>
 
 			{/* Summary row */}
@@ -203,7 +341,15 @@ export default function PayrollReportPage() {
 				</div>
 			) : report && report.members.length > 0 ? (
 				<div className="rounded-lg border overflow-x-auto">
-					<table className="w-full min-w-[520px]">
+					<table className="w-full min-w-[760px] table-fixed">
+						<colgroup>
+							<col className="w-[24%]" />
+							<col className="w-[11%]" />
+							<col className="w-[13%]" />
+							<col className="w-[11%]" />
+							<col className="w-[17%]" />
+							<col className="w-[24%]" />
+						</colgroup>
 						<thead>
 							<tr className="border-b bg-muted/50 text-xs text-muted-foreground uppercase tracking-wide">
 								<th className="py-2.5 px-4 text-left font-medium">Nhân viên</th>
@@ -212,6 +358,10 @@ export default function PayrollReportPage() {
 								<th className="py-2.5 px-4 text-left font-medium">
 									Chuyên cần
 								</th>
+								<th className="py-2.5 px-4 text-left font-medium">
+									Mức lương
+								</th>
+								<th className="py-2.5 px-4 text-right font-medium">Lương</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -221,6 +371,13 @@ export default function PayrollReportPage() {
 									member={member}
 									standardWorkDays={report.standardWorkDays}
 									totalStandardHours={report.totalStandardHours}
+									standardHoursPerDay={report.standardHoursPerDay}
+									baseSalary={salaries[member.account._id] ?? 0}
+									otRates={otRates}
+									holidays={holidaySet}
+									onSalaryChange={(v) =>
+										setSalaries((s) => ({ ...s, [member.account._id]: v }))
+									}
 								/>
 							))}
 						</tbody>
@@ -238,6 +395,26 @@ export default function PayrollReportPage() {
 										.toFixed(2)}
 								</td>
 								<td />
+								<td />
+								<td className="py-2.5 px-4 text-right tabular-nums whitespace-nowrap">
+									{formatCurrency(
+										report.members.reduce(
+											(s, m) =>
+												s +
+												computeSalary(
+													salaries[m.account._id] ?? 0,
+													m,
+													{
+														totalStandardHours: report.totalStandardHours,
+														standardHoursPerDay: report.standardHoursPerDay,
+													},
+													otRates,
+													holidaySet,
+												).total,
+											0,
+										),
+									)}
+								</td>
 							</tr>
 						</tfoot>
 					</table>

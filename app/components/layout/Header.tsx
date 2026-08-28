@@ -7,6 +7,7 @@ import {
 	LogIn,
 	LogOut,
 	Users,
+	Wallet,
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 import { useAuth } from '~/contexts/auth-context';
@@ -17,6 +18,7 @@ const navItems = [
 	{ to: '/', label: 'Tổng quan', icon: LayoutDashboard, end: true },
 	{ to: '/work-logs', label: 'Bảng công', icon: FileText },
 	{ to: '/reports/attendance', label: 'Báo cáo', icon: BarChart2 },
+	{ to: '/reports/payroll', label: 'Lương', icon: Wallet },
 	{ to: '/employees', label: 'Nhân viên', icon: Users },
 	{ to: '/organizations', label: 'Cơ quan', icon: Building2 },
 ];
