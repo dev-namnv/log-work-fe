@@ -8,7 +8,7 @@ export interface UpsertHolidayDto {
 }
 
 export class HolidayService {
-	/** Danh sách ngày lễ/làm bù trong năm — FE dùng để tính ngày công chuẩn. */
+	/** Danh sách ngày lễ/làm bù trong năm. */
 	static listByYear(year: number): Promise<Holiday[]> {
 		return http.get<Holiday[]>(`/holidays?year=${year}`);
 	}
@@ -25,6 +25,6 @@ export class HolidayService {
 
 	/** Admin: xoá ngày lễ. */
 	static remove(id: string): Promise<void> {
-		return http.delete<void>(`/holidays/${id}`);
+		return http.delete<void>(`/holidays/${id}/delete`);
 	}
 }

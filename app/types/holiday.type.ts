@@ -1,8 +1,8 @@
 export enum HolidayType {
 	/** Ngày nghỉ: lễ chính thức hoặc nghỉ bù → trừ khỏi ngày công */
-	Off = 'off',
+	Off = 'Off',
 	/** Ngày làm bù: T7/CN phải đi làm (hoán đổi) → cộng vào ngày công */
-	Workday = 'workday',
+	Workday = 'Workday',
 }
 
 export interface Holiday {

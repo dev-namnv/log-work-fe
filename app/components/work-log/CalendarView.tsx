@@ -1,5 +1,5 @@
 import { cn } from '~/lib/utils';
-import type { WorkLog } from '~/types';
+import { HolidayType, type Holiday, type WorkLog } from '~/types';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -36,6 +36,7 @@ interface CalendarViewProps {
 	month: number; // 1-12
 	year: number;
 	standardHoursPerDay?: number; // default 8
+	holidays?: Map<string, Holiday>; // key "YYYY-MM-DD" → lễ / làm bù
 }
 
 // ---------------------------------------------------------------------------
@@ -47,6 +48,7 @@ export default function CalendarView({
 	month,
 	year,
 	standardHoursPerDay = 8,
+	holidays,
 }: CalendarViewProps) {
 	// Build a map from "YYYY-MM-DD" (Vietnam timezone) → WorkLog for fast lookup
 	const logsByDate: Record<string, WorkLog> = {};
@@ -107,7 +109,10 @@ export default function CalendarView({
 					const log = logsByDate[dateKey];
 					const isToday = dateKey === todayKey;
 					const isFuture = dateKey > todayKey; // YYYY-MM-DD string comparison is safe
-					const isAbsent = !log && !isWeekend && !isFuture;
+					const holiday = holidays?.get(dateKey);
+					const isOff = holiday?.type === HolidayType.Off;
+					const isMakeup = holiday?.type === HolidayType.Workday;
+					const isAbsent = !log && !isWeekend && !isFuture && !holiday;
 
 					// ── color band ──
 					let accent = '';
@@ -128,6 +133,8 @@ export default function CalendarView({
 								colIdx === 6 && 'border-r-0',
 								// background shading
 								isWeekend && !log && 'bg-muted/30',
+								isOff && !log && 'bg-indigo-50 dark:bg-indigo-950/20',
+								isMakeup && !log && 'bg-amber-50 dark:bg-amber-950/20',
 								isAbsent && 'bg-red-50 dark:bg-red-950/20',
 								isWeekend && 'cursor-default',
 								// today ring
@@ -196,6 +203,17 @@ export default function CalendarView({
 										)}
 									</span>
 								</div>
+							) : holiday ? (
+								<div
+									title={holiday.name}
+									className={cn(
+										'mt-0.5 inline-block max-w-full truncate rounded-full px-1.5 py-0.5 text-[9px] font-medium',
+										isOff
+											? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
+											: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+									)}>
+									{holiday.name}
+								</div>
 							) : isAbsent ? (
 								<div className="mt-0.5 text-[9px] text-red-400/80 font-medium px-0.5 hidden sm:block">
 									vắng
@@ -226,6 +244,14 @@ export default function CalendarView({
 						cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
 					},
 					{ label: 'Vắng', cls: 'bg-red-50 text-red-400 dark:bg-red-950/20' },
+					{
+						label: 'Lễ',
+						cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+					},
+					{
+						label: 'Làm bù',
+						cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+					},
 				].map(({ label, cls }) => (
 					<span
 						key={label}

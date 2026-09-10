@@ -1,4 +1,4 @@
-import { Github, LogOut } from 'lucide-react';
+﻿import { CalendarDays, Github, LogOut } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
@@ -18,17 +18,21 @@ import {
 	useChangePasswordMutation,
 	useUpdateProfileMutation,
 } from '~/hooks/use-auth-mutations';
+import { AccountRole } from '~/types';
 
 export function meta() {
 	return [
-		{ title: 'Hồ sơ cá nhân — Log Work' },
-		{ name: 'description', content: 'Xem và cập nhật thông tin cá nhân' },
+		{ title: 'Há»“ sÆ¡ cÃ¡ nhÃ¢n â€” Log Work' },
+		{
+			name: 'description',
+			content: 'Xem vÃ  cáº­p nháº­t thÃ´ng tin cÃ¡ nhÃ¢n',
+		},
 	];
 }
 
 const ROLE_LABEL: Record<string, string> = {
-	USER: 'Người dùng',
-	ADMIN: 'Quản trị viên',
+	USER: 'NgÆ°á»i dÃ¹ng',
+	ADMIN: 'Quáº£n trá»‹ viÃªn',
 };
 
 export default function ProfilePage() {
@@ -248,6 +252,26 @@ export default function ProfilePage() {
 					</Button>
 				</CardContent>
 			</Card>
+
+			{/* Ngày lễ */}
+			{user.role === AccountRole.Admin && (
+				<Card>
+					<CardHeader>
+						<CardTitle>Ngày lễ</CardTitle>
+						<CardDescription>
+							Quản lý ngày nghỉ lễ và ngày làm bù để tính ngày công chuẩn.
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<Button variant="outline" asChild>
+							<Link to="/settings/holidays" className="flex items-center gap-2">
+								<CalendarDays className="h-4 w-4" />
+								Quản lý ngày lễ
+							</Link>
+						</Button>
+					</CardContent>
+				</Card>
+			)}
 		</div>
 	);
 }

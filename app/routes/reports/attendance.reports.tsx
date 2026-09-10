@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import CalendarView from '~/components/work-log/CalendarView';
 import { useAuth } from '~/contexts/auth-context';
+import { useHolidaysQuery } from '~/hooks/use-holiday-queries';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import {
 	useCreateShareMutation,
@@ -486,6 +487,9 @@ export default function AttendanceReportPage() {
 		{ enabled: authReady },
 	);
 
+	const { data: holidays } = useHolidaysQuery(year);
+	const holidayMap = new Map((holidays ?? []).map((h) => [h.date, h]));
+
 	if (!authLoading && !user) return null;
 
 	const sortedLogs = report
@@ -700,6 +704,7 @@ export default function AttendanceReportPage() {
 							month={month}
 							year={year}
 							standardHoursPerDay={report.standardHoursPerDay}
+							holidays={holidayMap}
 						/>
 					) : (
 						<div className="rounded-lg border overflow-x-auto">

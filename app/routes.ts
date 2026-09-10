@@ -46,6 +46,7 @@ export default [
 		// Settings
 		...prefix('settings', [
 			route('integrations', 'routes/settings/integrations.settings.tsx'),
+			route('holidays', 'routes/settings/holidays.settings.tsx'),
 		]),
 	]),
 

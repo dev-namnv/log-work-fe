@@ -1,4 +1,7 @@
-export type AccountRole = 'USER' | 'ADMIN';
+export enum AccountRole {
+	User = 'USER',
+	Admin = 'ADMIN',
+}
 
 export interface AccountMetadata {
 	sendMail: boolean;
