@@ -1,5 +1,6 @@
 export * from './account.type';
 export * from './git-integration.type';
+export * from './holiday.type';
 export * from './notice.type';
 export * from './organization.type';
 export * from './pagination.type';
