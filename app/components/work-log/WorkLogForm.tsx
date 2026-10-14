@@ -181,10 +181,11 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 						value={checkInTime}
 						onChange={(e) => setCheckInTime(e.target.value)}
 						required
+						clearable
 					/>
 					<AddMinutes
 						value={checkInTime}
-						options={[5, 10, 15, 30]}
+						options={[1, 5, 15, 30]}
 						onChange={setCheckInTime}
 						base={selectedOrg?.workSchedule.workStartTime}
 						showReset
@@ -199,10 +200,11 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 						required={false}
 						value={checkOutTime}
 						onChange={(e) => setCheckOutTime(e.target.value)}
+						clearable
 					/>
 					<AddMinutes
 						value={checkOutTime}
-						options={[5, 10, 15, 30]}
+						options={[1, 5, 15, 30]}
 						onChange={setCheckOutTime}
 						base={selectedOrg?.workSchedule.workEndTime}
 						showReset
