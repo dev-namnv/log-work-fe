@@ -12,7 +12,8 @@ import {
 	useShareLinksQuery,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
+import { isOpen } from '~/lib/work-log';
+import { DayBadges, SessionTimes } from '~/components/work-log/SessionCells';
 import type { WorkLog, WorkLogShare } from '~/types';
 
 export function meta() {
@@ -20,15 +21,6 @@ export function meta() {
 		{ title: 'Báo cáo chuyên cần — Log Work' },
 		{ name: 'description', content: 'Báo cáo chuyên cần cá nhân theo tháng' },
 	];
-}
-
-function isoToHHmm(iso: string | null): string {
-	if (!iso) return '—';
-	return new Date(iso).toLocaleTimeString('vi-VN', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false,
-	});
 }
 
 function isoToDDMM(iso: string): string {
@@ -64,7 +56,13 @@ function StatCard({
 	);
 }
 
-function LogRow({ log }: { log: WorkLog }) {
+function LogRow({
+	log,
+	standardHoursPerDay,
+}: {
+	log: WorkLog;
+	standardHoursPerDay: number;
+}) {
 	const isIncomplete = isOpen(log);
 	const hours = isIncomplete ? null : log.hours;
 
@@ -75,25 +73,15 @@ function LogRow({ log }: { log: WorkLog }) {
 				<span className="text-muted-foreground ml-1.5 text-xs">
 					{isoToWeekday(log.date)}
 				</span>
-				{log.skipLunchBreak && (
-					<span
-						title="Không trừ nghỉ trưa"
-						className="ml-1.5 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
-						Xuyên trưa
-					</span>
-				)}
+				<DayBadges log={log} standardHoursPerDay={standardHoursPerDay} />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">
-				{isoToHHmm(firstCheckIn(log))}
+			<td className="py-2.5 px-3">
+				<SessionTimes log={log} side="in" />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">
-				{isIncomplete ? (
-					<span className="text-amber-500">Chưa ra</span>
-				) : (
-					isoToHHmm(lastCheckOut(log))
-				)}
+			<td className="py-2.5 px-3">
+				<SessionTimes log={log} side="out" />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums text-right font-medium">
+			<td className="py-2.5 px-3 tabular-nums text-right font-medium align-top">
 				{hours !== null ? (
 					<span
 						className={cn(
@@ -725,7 +713,11 @@ export default function AttendanceReportPage() {
 								</thead>
 								<tbody>
 									{sortedLogs.map((log) => (
-										<LogRow key={log._id} log={log} />
+										<LogRow
+										key={log._id}
+										log={log}
+										standardHoursPerDay={report.standardHoursPerDay}
+									/>
 									))}
 								</tbody>
 								<tfoot>

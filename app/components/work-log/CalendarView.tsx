@@ -1,5 +1,11 @@
 import { cn } from '~/lib/utils';
-import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
+import {
+	firstCheckIn,
+	isOpen,
+	lastCheckOut,
+	overtimeHours,
+	sessionCount,
+} from '~/lib/work-log';
 import { HolidayType, type Holiday, type WorkLog } from '~/types';
 
 // ---------------------------------------------------------------------------
@@ -196,13 +202,24 @@ export default function CalendarView({
 											)}
 										</span>
 									</span>
-									{/* Hours */}
-									<span className="font-medium">
+									{/* Hours + chỉ báo OT / nhiều phiên */}
+									<span className="font-medium flex items-center gap-1 flex-wrap">
 										{!logOpen ? (
 											<>{log.hours.toFixed(1)}h</>
 										) : (
 											<span className="sm:hidden">•</span>
 										)}
+										{sessionCount(log) > 1 && (
+											<span className="text-[9px] opacity-70">
+												×{sessionCount(log)}
+											</span>
+										)}
+										{!logOpen &&
+											overtimeHours(log, standardHoursPerDay) > 0 && (
+												<span className="rounded-full bg-green-600/15 px-1 text-[8px] font-semibold text-green-700 dark:text-green-400">
+													OT
+												</span>
+											)}
 									</span>
 								</div>
 							) : holiday ? (
@@ -253,6 +270,10 @@ export default function CalendarView({
 					{
 						label: 'Làm bù',
 						cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+					},
+					{
+						label: 'OT (vượt giờ chuẩn)',
+						cls: 'bg-green-600/15 text-green-700 dark:text-green-400',
 					},
 				].map(({ label, cls }) => (
 					<span

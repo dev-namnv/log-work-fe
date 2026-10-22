@@ -16,7 +16,9 @@ interface AddMinutesProps {
 	mode?: 'increment' | 'select';
 	/** Giờ gốc "HH:mm". Bắt buộc cho mode 'select'; cũng là giá trị nút refresh đưa về */
 	base?: string;
-	/** Hiện nút refresh đặt lại về `base` */
+	/** Giá trị nút refresh đưa về; ưu tiên hơn `base` (vd giờ ra phiên trước) */
+	resetTo?: string;
+	/** Hiện nút refresh đặt lại về `resetTo ?? base` */
 	showReset?: boolean;
 }
 
@@ -36,8 +38,10 @@ export default function AddMinutes({
 	onChange,
 	mode = 'increment',
 	base,
+	resetTo,
 	showReset,
 }: AddMinutesProps) {
+	const resetTarget = resetTo ?? base;
 	return (
 		<div className="flex gap-1">
 			{options.map((min) => {
@@ -50,21 +54,19 @@ export default function AddMinutes({
 						variant={selected ? 'default' : 'outline'}
 						size="sm"
 						className="flex-1"
-						onClick={() =>
-							onChange(addMinutes(isSelect ? base : value, min))
-						}>
+						onClick={() => onChange(addMinutes(isSelect ? base : value, min))}>
 						+{min}
 					</Button>
 				);
 			})}
-			{showReset && base !== undefined && (
+			{showReset && resetTarget !== undefined && resetTarget !== '' && (
 				<Button
 					type="button"
 					variant="ghost"
 					size="icon"
 					className="h-8 w-8"
 					title="Đặt lại giờ gốc"
-					onClick={() => onChange(base)}>
+					onClick={() => onChange(resetTarget)}>
 					<RotateCcw />
 				</Button>
 			)}

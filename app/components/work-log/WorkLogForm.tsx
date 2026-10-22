@@ -252,6 +252,7 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 									options={[1, 5, 15, 30]}
 									onChange={(v) => setSession(idx, { checkIn: v })}
 									base={selectedOrg?.workSchedule.workStartTime}
+									resetTo={idx > 0 ? sessions[idx - 1].checkOut : undefined}
 									showReset
 								/>
 							</div>
@@ -260,7 +261,9 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 								<Input
 									type="time"
 									value={s.checkOut}
-									onChange={(e) => setSession(idx, { checkOut: e.target.value })}
+									onChange={(e) =>
+										setSession(idx, { checkOut: e.target.value })
+									}
 									clearable
 								/>
 								<AddMinutes
@@ -268,6 +271,7 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 									options={[1, 5, 15, 30]}
 									onChange={(v) => setSession(idx, { checkOut: v })}
 									base={selectedOrg?.workSchedule.workEndTime}
+									resetTo={idx > 0 ? sessions[idx - 1].checkOut : undefined}
 									showReset
 								/>
 							</div>
@@ -282,7 +286,14 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 						variant="outline"
 						size="sm"
 						onClick={() =>
-							setSessions((prev) => [...prev, { checkIn: '', checkOut: '' }])
+							setSessions((prev) => [
+								...prev,
+								// default giờ vào = giờ ra phiên trước (phiên bù/OT nối tiếp)
+								{
+									checkIn: prev[prev.length - 1]?.checkOut ?? '',
+									checkOut: '',
+								},
+							])
 						}>
 						+ Thêm phiên
 					</Button>

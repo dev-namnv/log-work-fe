@@ -4,7 +4,8 @@ import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import { useOrgReportQuery } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
-import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
+import { isOpen } from '~/lib/work-log';
+import { DayBadges, SessionTimes } from '~/components/work-log/SessionCells';
 import type { WorkLog } from '~/types';
 
 export function meta() {
@@ -14,14 +15,6 @@ export function meta() {
 	];
 }
 
-function isoToHHmm(iso: string | null): string {
-	if (!iso) return '—';
-	return new Date(iso).toLocaleTimeString('vi-VN', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false,
-	});
-}
 
 function isoToDDMM(iso: string): string {
 	return new Date(iso).toLocaleDateString('vi-VN', {
@@ -57,7 +50,13 @@ function InitialAvatar({
 	);
 }
 
-function LogRow({ log }: { log: WorkLog }) {
+function LogRow({
+	log,
+	standardHoursPerDay,
+}: {
+	log: WorkLog;
+	standardHoursPerDay: number;
+}) {
 	const isIncomplete = isOpen(log);
 	return (
 		<tr className="border-b last:border-0 hover:bg-muted/40 transition-colors text-sm">
@@ -66,18 +65,15 @@ function LogRow({ log }: { log: WorkLog }) {
 				<span className="text-muted-foreground ml-1.5 text-xs">
 					{isoToWeekday(log.date)}
 				</span>
+				<DayBadges log={log} standardHoursPerDay={standardHoursPerDay} />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">
-				{isoToHHmm(firstCheckIn(log))}
+			<td className="py-2.5 px-3">
+				<SessionTimes log={log} side="in" />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">
-				{isIncomplete ? (
-					<span className="text-amber-500">Chưa ra</span>
-				) : (
-					isoToHHmm(lastCheckOut(log))
-				)}
+			<td className="py-2.5 px-3">
+				<SessionTimes log={log} side="out" />
 			</td>
-			<td className="py-2.5 px-3 tabular-nums text-right font-medium">
+			<td className="py-2.5 px-3 tabular-nums text-right font-medium align-top">
 				{!isIncomplete ? (
 					<span
 						className={cn(
@@ -306,7 +302,11 @@ export default function EmployeeDetailPage() {
 						</thead>
 						<tbody>
 							{sortedLogs.map((log) => (
-								<LogRow key={log._id} log={log} />
+								<LogRow
+									key={log._id}
+									log={log}
+									standardHoursPerDay={report!.standardHoursPerDay}
+								/>
 							))}
 						</tbody>
 						<tfoot>
