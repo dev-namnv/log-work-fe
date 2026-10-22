@@ -8,6 +8,7 @@ import {
 	useUpdateWorkLogMutation,
 } from '~/hooks/use-work-log-mutations';
 import { toDateString, toISO, toTimeString } from '~/lib/date';
+import { firstCheckIn } from '~/lib/work-log';
 import type { WorkLog } from '~/types';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
@@ -20,6 +21,12 @@ interface WorkLogFormProps {
 	onSuccess: () => void;
 }
 
+/** Một phiên trong form: giờ vào/ra dạng "HH:mm" ("" = trống) */
+interface SessionInput {
+	checkIn: string;
+	checkOut: string;
+}
+
 export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 	const { loading, user } = useAuth();
 	const authReady = !loading && !!user;
@@ -29,8 +36,10 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 		log ? log.skipLunchBreak : undefined,
 	);
 	const [selectedOrgId, setSelectedOrgId] = useState('');
-	const [checkInTime, setCheckInTime] = useState('08:00');
-	const [checkOutTime, setCheckOutTime] = useState('17:30');
+	// Create: 1 phiên. Edit: nhiều phiên từ log.items.
+	const [sessions, setSessions] = useState<SessionInput[]>([
+		{ checkIn: '08:00', checkOut: '17:30' },
+	]);
 	const [dateStr, setDateStr] = useState(
 		toDateString(new Date().toISOString()),
 	);
@@ -49,36 +58,59 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 
 	const selectedOrg = orgs.find((o) => o._id === selectedOrgId);
 
+	function setSession(idx: number, patch: Partial<SessionInput>) {
+		setSessions((prev) =>
+			prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)),
+		);
+	}
+
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		setUpdateError(null);
 		setUpdateSuccess(false);
 		const data = new FormData(e.currentTarget);
 		const date = data.get('date') as string;
-		const checkInTime = data.get('checkInTime') as string;
-		const checkOutTime = data.get('checkOutTime') as string;
+		const note = (data.get('note') as string) || undefined;
 
-		mutation.mutate(
-			{
-				checkIn: toISO(date, checkInTime),
-				checkOut: checkOutTime ? toISO(date, checkOutTime) : undefined,
-				note: (data.get('note') as string) || undefined,
-				skipLunchBreak: skipLunchBreak ?? false,
-				organizationId: (log ? undefined : selectedOrgId) as string,
+		const onResult = {
+			onSuccess: () => {
+				if (!log && selectedOrgId) updateLastOrg(selectedOrgId);
+				setUpdateSuccess(true);
+				onSuccess();
 			},
-			{
-				onSuccess: () => {
-					if (!log && selectedOrgId) updateLastOrg(selectedOrgId);
-					setUpdateSuccess(true);
-					onSuccess();
-				},
-				onError: (err) => {
-					setUpdateError(
-						err instanceof ApiException ? err.message : 'Đã có lỗi xảy ra.',
-					);
-				},
+			onError: (err: unknown) => {
+				setUpdateError(
+					err instanceof ApiException ? err.message : 'Đã có lỗi xảy ra.',
+				);
 			},
-		);
+		};
+
+		if (log) {
+			// Edit: gửi items[] (phiên không có giờ vào bị bỏ qua)
+			const items = sessions
+				.filter((s) => s.checkIn)
+				.map((s) => ({
+					checkIn: toISO(date, s.checkIn),
+					checkOut: s.checkOut ? toISO(date, s.checkOut) : undefined,
+				}));
+			(mutation as ReturnType<typeof useUpdateWorkLogMutation>).mutate(
+				{ items, note, skipLunchBreak: skipLunchBreak ?? false },
+				onResult,
+			);
+		} else {
+			// Create: BE nhận 1 cặp phẳng rồi tự bọc vào items
+			const s = sessions[0];
+			(mutation as ReturnType<typeof useCreateWorkLogMutation>).mutate(
+				{
+					checkIn: toISO(date, s.checkIn),
+					checkOut: s.checkOut ? toISO(date, s.checkOut) : undefined,
+					note,
+					skipLunchBreak: skipLunchBreak ?? false,
+					organizationId: selectedOrgId,
+				},
+				onResult,
+			);
+		}
 	}
 
 	function handleOrgChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -86,8 +118,12 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 		setSelectedOrgId(orgId);
 		const org = orgs.find((o) => o._id === orgId);
 		if (org) {
-			setCheckInTime(org.workSchedule.workStartTime);
-			setCheckOutTime(org.workSchedule.workEndTime);
+			setSessions([
+				{
+					checkIn: org.workSchedule.workStartTime,
+					checkOut: org.workSchedule.workEndTime,
+				},
+			]);
 		}
 	}
 
@@ -98,8 +134,12 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 		const preferred =
 			(lastOrgId && orgs.find((o) => o._id === lastOrgId)) || orgs[0];
 		setSelectedOrgId(preferred._id);
-		setCheckInTime(preferred.workSchedule.workStartTime);
-		setCheckOutTime(preferred.workSchedule.workEndTime);
+		setSessions([
+			{
+				checkIn: preferred.workSchedule.workStartTime,
+				checkOut: preferred.workSchedule.workEndTime,
+			},
+		]);
 	}, [orgs, userRef, log, selectedOrgId]);
 
 	// Reset success message vào lần kế tiếp
@@ -118,12 +158,19 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 					? log.organization
 					: log.organization._id,
 			);
-			setCheckInTime(toTimeString(log.checkIn));
-			setCheckOutTime(toTimeString(log.checkOut));
-			setDateStr(toDateString(log.checkIn));
+			setSessions(
+				log.items.length
+					? log.items.map((i) => ({
+							checkIn: toTimeString(i.checkIn),
+							checkOut: toTimeString(i.checkOut),
+						}))
+					: [{ checkIn: '08:00', checkOut: '17:30' }],
+			);
+			setDateStr(toDateString(firstCheckIn(log) ?? log.date));
 			setSkipLunchBreak(log.skipLunchBreak);
 		}
 	}, [log]);
+
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
 			{updateError && (
@@ -145,9 +192,10 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 					name="organizationId"
 					title="Chọn tổ chức"
 					required
+					disabled={!!log}
 					value={selectedOrgId}
 					onChange={handleOrgChange}
-					className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+					className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60">
 					<option value="">-- Chọn tổ chức --</option>
 					{orgs.map((org) => (
 						<option key={org._id} value={org._id}>
@@ -170,47 +218,77 @@ export default function WorkLogForm({ log, onSuccess }: WorkLogFormProps) {
 				/>
 			</div>
 
-			{/* Giờ */}
-			<div className="grid grid-cols-2 gap-3">
-				<div className="space-y-1.5">
-					<Label htmlFor="checkInTime">Giờ vào</Label>
-					<Input
-						id="checkInTime"
-						name="checkInTime"
-						type="time"
-						value={checkInTime}
-						onChange={(e) => setCheckInTime(e.target.value)}
-						required
-						clearable
-					/>
-					<AddMinutes
-						value={checkInTime}
-						options={[1, 5, 15, 30]}
-						onChange={setCheckInTime}
-						base={selectedOrg?.workSchedule.workStartTime}
-						showReset
-					/>
-				</div>
-				<div className="space-y-1.5">
-					<Label htmlFor="checkOutTime">Giờ ra</Label>
-					<Input
-						id="checkOutTime"
-						name="checkOutTime"
-						type="time"
-						required={false}
-						value={checkOutTime}
-						onChange={(e) => setCheckOutTime(e.target.value)}
-						clearable
-					/>
-					<AddMinutes
-						value={checkOutTime}
-						options={[1, 5, 15, 30]}
-						onChange={setCheckOutTime}
-						base={selectedOrg?.workSchedule.workEndTime}
-						showReset
-					/>
-				</div>
+			{/* Phiên vào/ra */}
+			<div className="space-y-3">
+				{sessions.map((s, idx) => (
+					<div key={idx} className="space-y-1.5">
+						{sessions.length > 1 && (
+							<div className="flex items-center justify-between">
+								<span className="text-xs font-medium text-muted-foreground">
+									Phiên {idx + 1}
+								</span>
+								<button
+									type="button"
+									onClick={() =>
+										setSessions((prev) => prev.filter((_, i) => i !== idx))
+									}
+									className="text-xs text-destructive hover:underline">
+									Xoá
+								</button>
+							</div>
+						)}
+						<div className="grid grid-cols-2 gap-3">
+							<div className="space-y-1.5">
+								<Label>Giờ vào</Label>
+								<Input
+									type="time"
+									value={s.checkIn}
+									onChange={(e) => setSession(idx, { checkIn: e.target.value })}
+									required
+									clearable
+								/>
+								<AddMinutes
+									value={s.checkIn}
+									options={[1, 5, 15, 30]}
+									onChange={(v) => setSession(idx, { checkIn: v })}
+									base={selectedOrg?.workSchedule.workStartTime}
+									showReset
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<Label>Giờ ra</Label>
+								<Input
+									type="time"
+									value={s.checkOut}
+									onChange={(e) => setSession(idx, { checkOut: e.target.value })}
+									clearable
+								/>
+								<AddMinutes
+									value={s.checkOut}
+									options={[1, 5, 15, 30]}
+									onChange={(v) => setSession(idx, { checkOut: v })}
+									base={selectedOrg?.workSchedule.workEndTime}
+									showReset
+								/>
+							</div>
+						</div>
+					</div>
+				))}
+
+				{/* Thêm phiên: chỉ ở chế độ edit (create chỉ 1 phiên, BE tự bọc) */}
+				{log && (
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={() =>
+							setSessions((prev) => [...prev, { checkIn: '', checkOut: '' }])
+						}>
+						+ Thêm phiên
+					</Button>
+				)}
 			</div>
+
 			{/* Bỏ qua nghỉ trưa */}
 			<label className="flex items-start gap-3 cursor-pointer group">
 				<input

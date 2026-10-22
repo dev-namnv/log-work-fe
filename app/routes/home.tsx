@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { endOfMinute } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ApiException } from '~/apis/http';
@@ -18,6 +17,12 @@ import {
 	localTimeStr,
 } from '~/lib/date';
 import { cn } from '~/lib/utils';
+import {
+	firstCheckIn,
+	isOpen,
+	lastCheckOut,
+	sessionCount,
+} from '~/lib/work-log';
 import type { WorkLog } from '~/types';
 
 export function meta() {
@@ -53,74 +58,9 @@ function StatCard({
 	);
 }
 
-function ConfirmReCheckOutModal({
-	oldTime,
-	newTime,
-	isPending,
-	onConfirm,
-	onCancel,
-}: {
-	oldTime: string;
-	newTime: string;
-	isPending: boolean;
-	onConfirm: () => void;
-	onCancel: () => void;
-}) {
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-			<div
-				className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-				onClick={onCancel}
-				aria-hidden
-			/>
-			<div className="relative z-10 w-full max-w-xs rounded-2xl border bg-background p-6 shadow-xl space-y-4">
-				<div className="space-y-1 text-center">
-					<h2 className="font-semibold text-base">Cập nhật check-out?</h2>
-					<p className="text-sm text-muted-foreground">
-						Hành động này sẽ ghi đè giờ check-out hiện tại.
-					</p>
-				</div>
-				<div className="rounded-lg border bg-muted/30 p-3 space-y-2 text-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground">Giờ ra cũ</span>
-						<span className="font-mono font-semibold line-through text-muted-foreground">
-							{oldTime}
-						</span>
-					</div>
-					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground">Giờ ra mới</span>
-						<span className="font-mono font-semibold text-green-600">
-							{newTime}
-						</span>
-					</div>
-				</div>
-				<div className="flex gap-2 pt-1">
-					<Button
-						variant="outline"
-						className="flex-1"
-						onClick={onCancel}
-						disabled={isPending}>
-						Huỷ
-					</Button>
-					<Button
-						className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
-						onClick={onConfirm}
-						disabled={isPending}>
-						{isPending ? 'Đang lưu...' : 'Xác nhận'}
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
-}
-
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
-
-interface WorkLogFormValues extends Omit<WorkLog, 'organization'> {
-	organization: string;
-}
 
 export default function HomePage() {
 	const { user, loading: authLoading } = useAuth();
@@ -131,10 +71,6 @@ export default function HomePage() {
 	const [now, setNow] = useState(new Date());
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
-	const [confirmOpen, setConfirmOpen] = useState(false);
-	const [optimisticTodayLog, setOptimisticTodayLog] =
-		useState<WorkLogFormValues | null>(null);
-
 	// Chỉ gọi API nếu đã login
 	const { data: orgs } = useOrganizationsQuery(
 		{ limit: 100 },
@@ -179,101 +115,34 @@ export default function HomePage() {
 		);
 	}, [report, todayVN]);
 
-	const displayTodayLog = optimisticTodayLog ?? todayLog;
+	const displayTodayLog = todayLog;
 
-	useEffect(() => {
-		if (!optimisticTodayLog || !todayLog) return;
-
-		const sameRecord = optimisticTodayLog._id === todayLog._id;
-		const checkOutSynced = !optimisticTodayLog.checkOut || !!todayLog.checkOut;
-
-		if (sameRecord && checkOutSynced) {
-			setOptimisticTodayLog(null);
-		}
-	}, [optimisticTodayLog, todayLog]);
-
-	// Check-in: tạo mới
+	// Check-in (lần đầu tạo log, lần sau push phiên OT) -> refetch report
 	const checkInMutation = useMutation({
 		mutationFn: () =>
-			WorkLogService.create({
-				organizationId: selectedOrgId,
-				checkIn: new Date().toISOString(),
-				checkOut: undefined,
-			}),
-		onMutate: () => {
-			const nowIso = new Date().toISOString();
-			setOptimisticTodayLog(
-				(prev) =>
-					prev ?? {
-						_id: 'optimistic-check-in',
-						account: user?._id ?? '',
-						organization: selectedOrgId,
-						date: nowIso,
-						checkIn: nowIso,
-						checkOut: null,
-						hours: 0,
-						note: '',
-						createdAt: nowIso,
-						updatedAt: nowIso,
-						skipLunchBreak: false,
-					},
-			);
-		},
-		onSuccess: (createdLog) => {
-			setOptimisticTodayLog({
-				...createdLog,
-				organization: createdLog.organization._id,
-			});
-			setErrorMsg(null);
-			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
-			refetch();
-		},
-		onError: (err) => {
-			setOptimisticTodayLog(null);
-			setErrorMsg(
-				err instanceof ApiException ? err.message : 'Check-in thất bại.',
-			);
-		},
-	});
-
-	// Check-out: cập nhật bản ghi hiện tại
-	const checkOutMutation = useMutation({
-		mutationFn: (logId: string) =>
-			WorkLogService.update(logId, { checkOut: new Date().toISOString() }),
-		onMutate: (logId) => {
-			const nowIso = new Date().toISOString();
-			const checkOut = endOfMinute(new Date(nowIso)).toISOString(); // làm tròn lên cuối phút để tránh check-out trước check-in khi đồng hồ đang chạy
-			setOptimisticTodayLog((prev) => {
-				const baseLog = prev ?? todayLog;
-				if (!baseLog) return prev;
-
-				const hours = Math.max(
-					0,
-					(new Date(checkOut).getTime() - new Date(baseLog.checkIn).getTime()) /
-						3600000,
-				);
-
-				return {
-					...baseLog,
-					_id: baseLog._id || logId,
-					checkOut,
-					hours,
-					updatedAt: nowIso,
-					organization: baseLog.organization as string,
-				};
-			});
-		},
+			WorkLogService.clockCheckIn({ organizationId: selectedOrgId }),
 		onSuccess: () => {
 			setErrorMsg(null);
 			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
-			setOptimisticTodayLog(
-				todayLog
-					? { ...todayLog, organization: todayLog.organization._id }
-					: null,
+			setErrorMsg(
+				err instanceof ApiException ? err.message : 'Check-in thất bại.',
 			);
+		},
+	});
+
+	// Check-out (đóng phiên cuối) -> refetch report
+	const checkOutMutation = useMutation({
+		mutationFn: () =>
+			WorkLogService.clockCheckOut({ organizationId: selectedOrgId }),
+		onSuccess: () => {
+			setErrorMsg(null);
+			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
+			refetch();
+		},
+		onError: (err) => {
 			setErrorMsg(
 				err instanceof ApiException ? err.message : 'Check-out thất bại.',
 			);
@@ -305,24 +174,9 @@ export default function HomePage() {
 	}
 
 	const isPending = checkInMutation.isPending || checkOutMutation.isPending;
-	const isCheckedIn = !!displayTodayLog && !displayTodayLog.checkOut;
-	const isCheckedOut = !!displayTodayLog && !!displayTodayLog.checkOut;
+	const isCheckedIn = !!displayTodayLog && isOpen(displayTodayLog); // phiên đang mở
+	const isCheckedOut = !!displayTodayLog && !isOpen(displayTodayLog); // đã đóng (có thể OT)
 	const selectedOrg = orgs?.data.find((o) => o._id === selectedOrgId);
-
-	function handleCheckOut() {
-		if (!displayTodayLog) return;
-		if (!displayTodayLog._id || displayTodayLog._id === 'optimistic-check-in') {
-			setErrorMsg(
-				'Đang đồng bộ dữ liệu check-in, vui lòng thử lại sau vài giây.',
-			);
-			return;
-		}
-		if (isCheckedOut) {
-			setConfirmOpen(true);
-		} else {
-			checkOutMutation.mutate(displayTodayLog._id);
-		}
-	}
 
 	// 5 log gần nhất (sort desc)
 	const recentLogs = report
@@ -409,24 +263,26 @@ export default function HomePage() {
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Vào</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums">
-										{isoToHHmm(displayTodayLog!.checkIn)}
+										{isoToHHmm(firstCheckIn(displayTodayLog!)!)}
 									</span>
 								</div>
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Ra</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums text-green-600">
-										{isoToHHmm(displayTodayLog!.checkOut!)}
+										{isoToHHmm(lastCheckOut(displayTodayLog!)!)}
 									</span>
 								</div>
 								<p className="text-sm font-medium text-green-600 text-center">
 									✓ Đã chấm công xong · {displayTodayLog!.hours.toFixed(2)} giờ
+									{sessionCount(displayTodayLog!) > 1 &&
+										` · ${sessionCount(displayTodayLog!)} phiên`}
 								</p>
 								<Button
 									size="lg"
-									className="w-full h-14 text-base bg-green-500 hover:bg-green-600 text-white"
+									className="w-full h-14 text-base"
 									disabled={isPending}
-									onClick={handleCheckOut}>
-									{isPending ? 'Đang lưu...' : '↻ Cập nhật check-out'}
+									onClick={() => checkInMutation.mutate()}>
+									{isPending ? 'Đang lưu...' : '▶ Check-in lại (OT/bù)'}
 								</Button>
 							</>
 						) : isCheckedIn ? (
@@ -434,7 +290,7 @@ export default function HomePage() {
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground font-medium">Vào</span>
 									<span className="text-2xl font-mono font-semibold tabular-nums text-amber-600">
-										{isoToHHmm(displayTodayLog!.checkIn)}
+										{isoToHHmm(firstCheckIn(displayTodayLog!)!)}
 									</span>
 								</div>
 								<p className="text-sm text-muted-foreground text-center">
@@ -444,7 +300,7 @@ export default function HomePage() {
 									size="lg"
 									className="w-full h-14 text-base bg-amber-500 hover:bg-amber-600 text-white"
 									disabled={isPending}
-									onClick={handleCheckOut}>
+									onClick={() => checkOutMutation.mutate()}>
 									{isPending ? 'Đang lưu...' : '⏹ Check-out'}
 								</Button>
 							</>
@@ -560,19 +416,19 @@ export default function HomePage() {
 													{isoToDateShort(log.date)}
 												</td>
 												<td className="py-2 px-3 tabular-nums">
-													{isoToHHmm(log.checkIn)}
+													{isoToHHmm(firstCheckIn(log))}
 												</td>
 												<td className="py-2 px-3 tabular-nums">
-													{log.checkOut ? (
-														isoToHHmm(log.checkOut)
-													) : (
+													{isOpen(log) ? (
 														<span className="text-amber-500 text-xs">
 															Chưa ra
 														</span>
+													) : (
+														isoToHHmm(lastCheckOut(log))
 													)}
 												</td>
 												<td className="py-2 px-3 tabular-nums text-right font-medium">
-													{log.checkOut ? (
+													{!isOpen(log) ? (
 														<span
 															className={cn(
 																log.hours < 4
@@ -608,21 +464,6 @@ export default function HomePage() {
 					</div>
 				</div>
 			</div>
-
-			{/* Modal xác nhận cập nhật check-out */}
-			{confirmOpen && displayTodayLog && displayTodayLog.checkOut && (
-				<ConfirmReCheckOutModal
-					oldTime={isoToHHmm(displayTodayLog.checkOut)}
-					newTime={localTimeStr(now)}
-					isPending={isPending}
-					onConfirm={() => {
-						if (!displayTodayLog._id) return;
-						setConfirmOpen(false);
-						checkOutMutation.mutate(displayTodayLog._id);
-					}}
-					onCancel={() => setConfirmOpen(false)}
-				/>
-			)}
 		</>
 	);
 }

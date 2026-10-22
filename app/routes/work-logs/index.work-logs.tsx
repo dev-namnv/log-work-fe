@@ -20,6 +20,7 @@ import {
 	useMonthlyReportQuery,
 	useWorkLogsQuery,
 } from '~/hooks/use-work-log-queries';
+import { firstCheckIn, lastCheckOut } from '~/lib/work-log';
 import { SortOrder, type WorkLog } from '~/types';
 
 export function meta() {
@@ -60,8 +61,9 @@ function WorkLogRow({ log }: { log: WorkLog }) {
 					)}
 				</div>
 				<p className="text-muted-foreground text-xs">
-					{log.checkIn ? formatDateTime(log.checkIn) : '—'} →{' '}
-					{log.checkOut ? formatDateTime(log.checkOut) : '—'}
+					{firstCheckIn(log) ? formatDateTime(firstCheckIn(log)!) : '—'}
+					{' -> '}
+					{lastCheckOut(log) ? formatDateTime(lastCheckOut(log)!) : '—'}
 				</p>
 				{log.note && (
 					<p className="text-muted-foreground text-xs italic line-clamp-1">
