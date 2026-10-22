@@ -1,4 +1,5 @@
 import { cn } from '~/lib/utils';
+import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
 import { HolidayType, type Holiday, type WorkLog } from '~/types';
 
 // ---------------------------------------------------------------------------
@@ -115,12 +116,13 @@ export default function CalendarView({
 					const isAbsent = !log && !isWeekend && !isFuture && !holiday;
 
 					// ── color band ──
+					const logOpen = log ? isOpen(log) : false;
 					let accent = '';
-					if (log?.checkOut) {
+					if (log && !logOpen) {
 						if (log.hours >= standardHoursPerDay) accent = 'full';
 						else if (log.hours >= standardHoursPerDay / 2) accent = 'half';
 						else accent = 'low';
-					} else if (log?.checkIn && !log.checkOut) {
+					} else if (logOpen) {
 						accent = 'in-progress';
 					}
 
@@ -171,7 +173,7 @@ export default function CalendarView({
 									)}>
 									{/* Times — hidden on very small screens */}
 									<span className="hidden sm:flex gap-0.5 items-center">
-										<span>{isoToHHmm(log.checkIn)}</span>
+										<span>{isoToHHmm(firstCheckIn(log))}</span>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											width="8"
@@ -187,16 +189,16 @@ export default function CalendarView({
 											<path d="m12 5 7 7-7 7" />
 										</svg>
 										<span>
-											{log.checkOut ? (
-												isoToHHmm(log.checkOut)
-											) : (
+											{logOpen ? (
 												<span className="italic opacity-75">đang làm</span>
+											) : (
+												isoToHHmm(lastCheckOut(log))
 											)}
 										</span>
 									</span>
 									{/* Hours */}
 									<span className="font-medium">
-										{log.checkOut ? (
+										{!logOpen ? (
 											<>{log.hours.toFixed(1)}h</>
 										) : (
 											<span className="sm:hidden">•</span>

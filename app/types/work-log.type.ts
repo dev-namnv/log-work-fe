@@ -1,13 +1,19 @@
 import type { Account } from './account.type';
 import type { Organization, WorkSchedule } from './organization.type';
 
+/** Một phiên chấm công trong ngày (vào/ra). checkOut null = đang mở. */
+export interface HoursLogItem {
+	checkIn: string; // ISO 8601
+	checkOut: string | null; // ISO 8601, null nếu phiên đang mở
+}
+
 export interface WorkLog {
 	_id: string;
 	account: Account | string;
 	organization: Organization;
-	date: string; // "YYYY-MM-DD"
-	checkIn: string; // ISO 8601
-	checkOut: string | null; // ISO 8601, null nếu chưa check-out
+	date: string; // ISO datetime
+	/** Các phiên vào/ra trong ngày (hỗ trợ OT/làm bù nhiều phiên) */
+	items: HoursLogItem[];
 	hours: number;
 	note: string;
 	/** Bỏ qua khấu trừ nghỉ trưa */

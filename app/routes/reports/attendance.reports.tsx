@@ -12,6 +12,7 @@ import {
 	useShareLinksQuery,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
+import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
 import type { WorkLog, WorkLogShare } from '~/types';
 
 export function meta() {
@@ -64,8 +65,8 @@ function StatCard({
 }
 
 function LogRow({ log }: { log: WorkLog }) {
-	const hours = log.checkOut ? log.hours : null;
-	const isIncomplete = !log.checkOut;
+	const isIncomplete = isOpen(log);
+	const hours = isIncomplete ? null : log.hours;
 
 	return (
 		<tr className="border-b last:border-0 hover:bg-muted/40 transition-colors text-sm">
@@ -82,12 +83,14 @@ function LogRow({ log }: { log: WorkLog }) {
 					</span>
 				)}
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">{isoToHHmm(log.checkIn)}</td>
+			<td className="py-2.5 px-3 tabular-nums">
+				{isoToHHmm(firstCheckIn(log))}
+			</td>
 			<td className="py-2.5 px-3 tabular-nums">
 				{isIncomplete ? (
 					<span className="text-amber-500">Chưa ra</span>
 				) : (
-					isoToHHmm(log.checkOut)
+					isoToHHmm(lastCheckOut(log))
 				)}
 			</td>
 			<td className="py-2.5 px-3 tabular-nums text-right font-medium">

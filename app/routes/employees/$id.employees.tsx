@@ -4,6 +4,7 @@ import { useAuth } from '~/contexts/auth-context';
 import { useOrganizationsQuery } from '~/hooks/use-organization-queries';
 import { useOrgReportQuery } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
+import { firstCheckIn, isOpen, lastCheckOut } from '~/lib/work-log';
 import type { WorkLog } from '~/types';
 
 export function meta() {
@@ -57,7 +58,7 @@ function InitialAvatar({
 }
 
 function LogRow({ log }: { log: WorkLog }) {
-	const isIncomplete = !log.checkOut;
+	const isIncomplete = isOpen(log);
 	return (
 		<tr className="border-b last:border-0 hover:bg-muted/40 transition-colors text-sm">
 			<td className="py-2.5 px-3 whitespace-nowrap">
@@ -66,16 +67,18 @@ function LogRow({ log }: { log: WorkLog }) {
 					{isoToWeekday(log.date)}
 				</span>
 			</td>
-			<td className="py-2.5 px-3 tabular-nums">{isoToHHmm(log.checkIn)}</td>
+			<td className="py-2.5 px-3 tabular-nums">
+				{isoToHHmm(firstCheckIn(log))}
+			</td>
 			<td className="py-2.5 px-3 tabular-nums">
 				{isIncomplete ? (
 					<span className="text-amber-500">Chưa ra</span>
 				) : (
-					isoToHHmm(log.checkOut)
+					isoToHHmm(lastCheckOut(log))
 				)}
 			</td>
 			<td className="py-2.5 px-3 tabular-nums text-right font-medium">
-				{log.checkOut ? (
+				{!isIncomplete ? (
 					<span
 						className={cn(
 							log.hours < 4

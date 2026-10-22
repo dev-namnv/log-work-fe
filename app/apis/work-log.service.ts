@@ -24,11 +24,16 @@ export interface CreateWorkLogDto {
 }
 
 export interface UpdateWorkLogDto {
-	checkIn?: string; // ISO 8601
-	checkOut?: string; // ISO 8601
+	/** Các phiên vào/ra trong ngày; checkOut bỏ trống = phiên đang mở */
+	items?: { checkIn: string; checkOut?: string }[];
 	note?: string;
 	/** Bỏ qua khấu trừ nghỉ trưa (làm xuyên trưa hoặc chỉ 1 buổi) */
 	skipLunchBreak?: boolean;
+}
+
+export interface ClockDto {
+	organizationId: string;
+	note?: string;
 }
 
 export interface SearchWorkLogDto extends PaginationDto {
@@ -69,6 +74,23 @@ export class WorkLogService {
 	 */
 	static create(dto: CreateWorkLogDto): Promise<WorkLog> {
 		return http.post<WorkLog>('/work-log', { json: dto });
+	}
+
+	/**
+	 * Check-in nhanh: lần đầu/ngày tạo log mới, lần sau push thêm phiên (OT/làm bù).
+	 * Response không đồng nhất (full WorkLog hoặc { message }) -> luôn refetch sau đó.
+	 */
+	static clockCheckIn(dto: ClockDto): Promise<WorkLog | MessageResponse> {
+		return http.post<WorkLog | MessageResponse>('/clock/check-in', {
+			json: dto,
+		});
+	}
+
+	/**
+	 * Check-out nhanh: đóng phiên cuối, BE tính lại giờ. Refetch để lấy log mới.
+	 */
+	static clockCheckOut(dto: ClockDto): Promise<MessageResponse> {
+		return http.patch<MessageResponse>('/clock/check-out', { json: dto });
 	}
 
 	/**

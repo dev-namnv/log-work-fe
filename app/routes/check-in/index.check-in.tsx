@@ -11,6 +11,12 @@ import {
 	WORK_LOG_KEYS,
 } from '~/hooks/use-work-log-queries';
 import { cn } from '~/lib/utils';
+import {
+	firstCheckIn,
+	isOpen,
+	lastCheckOut,
+	sessionCount,
+} from '~/lib/work-log';
 import type { WorkLog } from '~/types';
 
 export function meta() {
@@ -54,7 +60,6 @@ export default function CheckInPage() {
 	const [now, setNow] = useState(new Date());
 	const [selectedOrgId, setSelectedOrgId] = useState('');
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
-	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const { data: orgs } = useOrganizationsQuery(
 		{ limit: 100 },
@@ -103,20 +108,14 @@ export default function CheckInPage() {
 		);
 	}, [report, today]);
 
-	// Mutation: check-in (tạo mới, checkOut = null)
+	// Check-in (lần đầu tạo log, lần sau push phiên OT) -> luôn refetch report
 	const checkInMutation = useMutation({
 		mutationFn: () =>
-			WorkLogService.create({
-				organizationId: selectedOrgId,
-				checkIn: new Date().toISOString(),
-				checkOut: null,
-			}),
+			WorkLogService.clockCheckIn({ organizationId: selectedOrgId }),
 		onSuccess: () => {
 			updateLastOrg(selectedOrgId);
 			setErrorMsg(null);
-			queryClient.invalidateQueries({
-				queryKey: WORK_LOG_KEYS.all,
-			});
+			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
@@ -126,15 +125,13 @@ export default function CheckInPage() {
 		},
 	});
 
-	// Mutation: check-out (cập nhật bản ghi hiện tại)
+	// Check-out (đóng phiên cuối) -> refetch report
 	const checkOutMutation = useMutation({
-		mutationFn: (logId: string) =>
-			WorkLogService.update(logId, { checkOut: new Date().toISOString() }),
+		mutationFn: () =>
+			WorkLogService.clockCheckOut({ organizationId: selectedOrgId }),
 		onSuccess: () => {
 			setErrorMsg(null);
-			queryClient.invalidateQueries({
-				queryKey: WORK_LOG_KEYS.all,
-			});
+			queryClient.invalidateQueries({ queryKey: WORK_LOG_KEYS.all });
 			refetch();
 		},
 		onError: (err) => {
@@ -147,18 +144,8 @@ export default function CheckInPage() {
 	if (!authLoading && !user) return null;
 
 	const isPending = checkInMutation.isPending || checkOutMutation.isPending;
-	const isCheckedIn = !!todayLog && !todayLog.checkOut;
-	const isCheckedOut = !!todayLog && !!todayLog.checkOut;
-
-	function handleCheckOut() {
-		if (!todayLog) return;
-		if (isCheckedOut) {
-			// Đã check-out rồi → hiện modal xác nhận trước
-			setConfirmOpen(true);
-		} else {
-			checkOutMutation.mutate(todayLog._id);
-		}
-	}
+	const isCheckedIn = !!todayLog && isOpen(todayLog); // phiên đang mở
+	const isCheckedOut = !!todayLog && !isOpen(todayLog); // đã đóng phiên (có thể check-in lại cho OT/bù)
 
 	const selectedOrg = orgs?.data.find((o) => o._id === selectedOrgId);
 
@@ -231,30 +218,32 @@ export default function CheckInPage() {
 						<>
 							<StatusRow
 								label="Vào"
-								time={isoToLocalHHmm(todayLog!.checkIn)}
+								time={isoToLocalHHmm(firstCheckIn(todayLog!)!)}
 								color="text-foreground"
 							/>
 							<StatusRow
 								label="Ra"
-								time={isoToLocalHHmm(todayLog!.checkOut!)}
+								time={isoToLocalHHmm(lastCheckOut(todayLog!)!)}
 								color="text-green-600"
 							/>
 							<p className="text-sm font-medium text-green-600">
 								✓ Đã chấm công xong · {todayLog!.hours.toFixed(2)} giờ
+								{sessionCount(todayLog!) > 1 &&
+									` · ${sessionCount(todayLog!)} phiên`}
 							</p>
 							<Button
 								size="lg"
-								className="w-full h-14 text-base bg-green-500 hover:bg-green-600 text-white"
+								className="w-full h-14 text-base bg-primary"
 								disabled={isPending}
-								onClick={handleCheckOut}>
-								{isPending ? 'Đang lưu...' : '⏹ Check-out lại'}
+								onClick={() => checkInMutation.mutate()}>
+								{isPending ? 'Đang lưu...' : '▶ Check-in lại (OT/bù)'}
 							</Button>
 						</>
 					) : isCheckedIn ? (
 						<>
 							<StatusRow
 								label="Vào"
-								time={isoToLocalHHmm(todayLog!.checkIn)}
+								time={isoToLocalHHmm(firstCheckIn(todayLog!)!)}
 								color="text-amber-600"
 							/>
 							<p className="text-sm text-muted-foreground">Chưa check-out</p>
@@ -262,7 +251,7 @@ export default function CheckInPage() {
 								size="lg"
 								className="w-full h-14 text-base bg-amber-500 hover:bg-amber-600 text-white"
 								disabled={isPending}
-								onClick={handleCheckOut}>
+								onClick={() => checkOutMutation.mutate()}>
 								{isPending ? 'Đang lưu...' : '⏹ Check-out'}
 							</Button>
 						</>
@@ -286,83 +275,6 @@ export default function CheckInPage() {
 				{errorMsg && (
 					<p className="text-sm text-destructive text-center">{errorMsg}</p>
 				)}
-			</div>
-
-			{/* Modal xác nhận cập nhật check-out */}
-			{confirmOpen && todayLog && (
-				<ConfirmReCheckOutModal
-					oldTime={isoToLocalHHmm(todayLog.checkOut!)}
-					newTime={localTimeStr(now)}
-					isPending={isPending}
-					onConfirm={() => {
-						setConfirmOpen(false);
-						checkOutMutation.mutate(todayLog._id);
-					}}
-					onCancel={() => setConfirmOpen(false)}
-				/>
-			)}
-		</div>
-	);
-}
-
-function ConfirmReCheckOutModal({
-	oldTime,
-	newTime,
-	isPending,
-	onConfirm,
-	onCancel,
-}: {
-	oldTime: string;
-	newTime: string;
-	isPending: boolean;
-	onConfirm: () => void;
-	onCancel: () => void;
-}) {
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-			{/* Backdrop */}
-			<div
-				className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-				onClick={onCancel}
-				aria-hidden
-			/>
-			{/* Panel */}
-			<div className="relative z-10 w-full max-w-xs rounded-2xl border bg-background p-6 shadow-xl space-y-4">
-				<div className="space-y-1 text-center">
-					<h2 className="font-semibold text-base">Cập nhật check-out?</h2>
-					<p className="text-sm text-muted-foreground">
-						Hành động này sẽ ghi đè giờ check-out hiện tại.
-					</p>
-				</div>
-				<div className="rounded-lg border bg-muted/30 p-3 space-y-2 text-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground">Giờ ra cũ</span>
-						<span className="font-mono font-semibold line-through text-muted-foreground">
-							{oldTime}
-						</span>
-					</div>
-					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground">Giờ ra mới</span>
-						<span className="font-mono font-semibold text-green-600">
-							{newTime}
-						</span>
-					</div>
-				</div>
-				<div className="flex gap-2 pt-1">
-					<Button
-						variant="outline"
-						className="flex-1"
-						onClick={onCancel}
-						disabled={isPending}>
-						Huỷ
-					</Button>
-					<Button
-						className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
-						onClick={onConfirm}
-						disabled={isPending}>
-						{isPending ? 'Đang lưu...' : 'Xác nhận'}
-					</Button>
-				</div>
 			</div>
 		</div>
 	);
