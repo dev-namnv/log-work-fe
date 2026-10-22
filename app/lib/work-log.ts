@@ -25,13 +25,17 @@ export function sessionCount(log: Pick<WorkLog, 'items'>): number {
 }
 
 /** Giờ OT của ngày thường = giờ vượt chuẩn/ngày. T7/CN tính toàn bộ giờ là OT. */
+/** Ngưỡng tối thiểu (giờ) để phần vượt được tính là OT. Dưới ngưỡng coi như 0. */
+export const OT_MIN_HOURS = 30 / 60;
+
 export function overtimeHours(
 	log: Pick<WorkLog, 'items' | 'hours' | 'date'>,
 	standardHoursPerDay: number,
 ): number {
 	if (isOpen(log)) return 0; // phiên còn mở -> chưa chốt giờ
-	if (isWeekend(log.date)) return log.hours;
-	return Math.max(0, Math.round((log.hours - standardHoursPerDay) * 100) / 100);
+	const raw = isWeekend(log.date) ? log.hours : log.hours - standardHoursPerDay;
+	// Chỉ tính OT khi vượt >= ngưỡng (tránh lố vài phút cũng báo OT)
+	return raw >= OT_MIN_HOURS ? Math.round(raw * 100) / 100 : 0;
 }
 
 /** Ngày log rơi vào T7/CN (theo giờ VN) */
